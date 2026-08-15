@@ -1,4 +1,5 @@
 import AnswerInput from "./components/AnswerInput";
+import ConsistencyBadge from "./components/ConsistencyBadge";
 import QuestionCard from "./components/QuestionCard";
 import ScorePanel from "./components/ScorePanel";
 
@@ -31,7 +32,10 @@ export default function Home() {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
         <QuestionCard />
         <AnswerInput />
-        <ScorePanel results={DUMMY_RESULTS} />
+        <div className="flex flex-col gap-3">
+          <ConsistencyBadge scores={DUMMY_RESULTS.map((result) => result.score)} />
+          <ScorePanel results={DUMMY_RESULTS} />
+        </div>
       </div>
     </div>
   );
