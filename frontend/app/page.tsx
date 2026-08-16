@@ -1,41 +1,91 @@
+"use client";
+
+import { useState } from "react";
 import AnswerInput from "./components/AnswerInput";
 import ConsistencyBadge from "./components/ConsistencyBadge";
 import QuestionCard from "./components/QuestionCard";
-import ScorePanel from "./components/ScorePanel";
+import ScorePanel, { type ScoreResult } from "./components/ScorePanel";
 
-const DUMMY_RESULTS = [
+type EvaluateResponse = Record<
+  string,
   {
-    persona: "Strict Technical Reviewer",
-    score: 7,
-    reasoning:
-      "Solid approach but missed the edge case where the input array is empty.",
-    weaknesses: ["Edge case handling", "Time complexity not mentioned"],
-  },
-  {
-    persona: "Friendly HR Interviewer",
-    score: 8,
-    reasoning: "Clear and confident explanation, good structure.",
-    weaknesses: ["Could be more concise"],
-  },
-  {
-    persona: "System Design Skeptic",
-    score: 5,
-    reasoning:
-      "No mention of what happens at scale or with concurrent requests.",
-    weaknesses: ["No scalability discussion", "No assumptions stated"],
-  },
-];
+    persona?: string;
+    score?: number;
+    reasoning?: string;
+    weaknesses?: string[];
+  }
+>;
+
+function toResults(payload: EvaluateResponse): ScoreResult[] {
+  return Object.values(payload).map((item) => ({
+    persona: item.persona ?? "Unknown persona",
+    score: typeof item.score === "number" ? item.score : 0,
+    reasoning: item.reasoning ?? "",
+    weaknesses: Array.isArray(item.weaknesses) ? item.weaknesses : [],
+  }));
+}
 
 export default function Home() {
+  const [question, setQuestion] = useState("");
+  const [results, setResults] = useState<ScoreResult[] | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(answer: string) {
+    if (!question.trim()) {
+      setError("Generate a question before submitting an answer.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5000/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, answer }),
+      });
+
+      if (!response.ok) {
+        throw new Error("The evaluation request failed.");
+      }
+
+      const data = (await response.json()) as EvaluateResponse;
+      setResults(toResults(data));
+    } catch {
+      setError("Could not evaluate the answer. Check that the backend is running.");
+      setResults(null);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className="flex flex-1 flex-col bg-zinc-100 px-6 py-8">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <QuestionCard />
-        <AnswerInput />
-        <div className="flex flex-col gap-3">
-          <ConsistencyBadge scores={DUMMY_RESULTS.map((result) => result.score)} />
-          <ScorePanel results={DUMMY_RESULTS} />
-        </div>
+        <QuestionCard onQuestionChange={setQuestion} />
+        <AnswerInput isSubmitting={isSubmitting} onSubmit={handleSubmit} />
+
+        {isSubmitting && (
+          <p className="flex items-center gap-2 text-sm text-zinc-600">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
+            Evaluating your answer...
+          </p>
+        )}
+
+        {error && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </p>
+        )}
+
+        {results && results.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <ConsistencyBadge scores={results.map((result) => result.score)} />
+            <ScorePanel results={results} />
+          </div>
+        )}
       </div>
     </div>
   );

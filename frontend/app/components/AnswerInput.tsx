@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 
-export default function AnswerInput() {
+type AnswerInputProps = {
+  isSubmitting?: boolean;
+  onSubmit: (answer: string) => void;
+};
+
+export default function AnswerInput({
+  isSubmitting = false,
+  onSubmit,
+}: AnswerInputProps) {
   const [answer, setAnswer] = useState("");
   const isEmpty = answer.trim().length === 0;
 
@@ -22,10 +30,11 @@ export default function AnswerInput() {
 
       <button
         type="button"
-        disabled={isEmpty}
+        disabled={isEmpty || isSubmitting}
+        onClick={() => onSubmit(answer)}
         className="mt-4 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:hover:bg-zinc-300"
       >
-        Submit Answer
+        {isSubmitting ? "Submitting..." : "Submit Answer"}
       </button>
     </section>
   );
