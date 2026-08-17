@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 from groq_client import call_persona
 from personas import PERSONAS
+from question_gen import generate_question
 import os
 
 load_dotenv()
@@ -20,7 +21,7 @@ def evaluate():
     data=request.json
     question=data.get("question")
     answer=data.get("answer")
-    
+
     if not question or not answer:
         return jsonify({"error": "question and answer are required"}), 400
 
@@ -34,6 +35,12 @@ def evaluate():
         results = dict(executor.map(run_persona, PERSONAS.items()))
 
     return jsonify(results)
+@app.route("/question",methods=["POST"])
+def question():
+    data=request.json
+    track=data.get("track","sde_technical")
+    q=generate_question(track)
+    return jsonify({"question": q})
 
 
 

@@ -6,13 +6,10 @@ const TRACKS = ["SDE Technical", "GenAI", "HR Behavioral"] as const;
 
 type Track = (typeof TRACKS)[number];
 
-const SAMPLE_QUESTIONS: Record<Track, string> = {
-  "SDE Technical":
-    "Write a function to find the first non-repeating character in a string. Walk through your approach, including edge cases and time complexity.",
-  GenAI:
-    "How would you design a RAG pipeline for an internal knowledge base? What retrieval and evaluation tradeoffs would you consider?",
-  "HR Behavioral":
-    "Tell me about a time you disagreed with a teammate on a technical decision. How did you handle it?",
+const TRACK_KEYS: Record<Track, string> = {
+  "SDE Technical": "sde_technical",
+  GenAI: "genai",
+  "HR Behavioral": "hr_behavioral",
 };
 
 type QuestionCardProps = {
@@ -20,25 +17,52 @@ type QuestionCardProps = {
 };
 
 export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
-  const [track, setTrack] = useState<Track>("SDE Technical");
+  const [selectedTrack, setSelectedTrack] = useState<Track>("SDE Technical");
   const [question, setQuestion] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
 
-  function generateQuestion() {
-    const nextQuestion = SAMPLE_QUESTIONS[track];
-    setQuestion(nextQuestion);
-    onQuestionChange(nextQuestion);
+  async function generateQuestion() {
+    setIsGenerating(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5000/question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ track: TRACK_KEYS[selectedTrack] }),
+      });
+
+      if (!response.ok) {
+        throw new Error("The question request failed.");
+      }
+
+      const data = (await response.json()) as { question?: string };
+      const nextQuestion = data.question?.trim() ?? "";
+
+      if (!nextQuestion) {
+        throw new Error("No question was returned.");
+      }
+
+      setQuestion(nextQuestion);
+      onQuestionChange(nextQuestion);
+    } catch {
+      setError("Could not generate a question. Check that the backend is running.");
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap gap-2">
         {TRACKS.map((option) => {
-          const isActive = track === option;
+          const isActive = selectedTrack === option;
           return (
             <button
               key={option}
               type="button"
-              onClick={() => setTrack(option)}
+              onClick={() => setSelectedTrack(option)}
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-zinc-900 text-white"
@@ -54,9 +78,10 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
       <button
         type="button"
         onClick={generateQuestion}
-        className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800"
+        disabled={isGenerating}
+        className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:hover:bg-zinc-300"
       >
-        Generate Question
+        {isGenerating ? "Generating..." : "Generate Question"}
       </button>
 
       <div
@@ -64,8 +89,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
           question ? "text-zinc-800" : "text-zinc-500"
         }`}
       >
-        {question || "Click Generate Question to start"}
+        {isGenerating ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
+            Generating question...
+          </span>
+        ) : (
+          question || "Click Generate Question to start"
+        )}
       </div>
+
+      {error && (
+        <p className="mt-3 text-sm text-red-600">{error}</p>
+      )}
     </section>
   );
 }
