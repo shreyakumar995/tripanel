@@ -62,6 +62,22 @@ def question():
     track=data.get("track","sde_technical")
     q=generate_question(track)
     return jsonify({"question": q})
+@app.route("/sessions",methods=["GET"])
+def get_sessions():
+     sessions = Session.query.order_by(Session.created_at.desc()).all()
+     output=[]
+     for s in sessions:
+        output.append({
+            "id":s.id,
+            "track":s.track,
+            "question":s.question,
+            "answer":s.answer,
+            "created_at":s.created_at.isoformat(),
+            "results":[
+                {"persona":r.persona_name,"score":r.score,"reasoning":r.reasoning} for r in s.results
+            ]
+        })
+     return jsonify(output)
 
 
 

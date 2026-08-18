@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="h-full flex flex-col font-sans">
         <header className="border-b border-zinc-800 bg-zinc-950 px-6 py-4">
           <h1 className="text-lg font-semibold tracking-tight text-zinc-50">
             TriPanel
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             AI Mock Interview Panel with Multi-Rater Scoring
           </p>
         </header>
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </body>
     </html>
   );
