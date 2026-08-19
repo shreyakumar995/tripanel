@@ -87,13 +87,16 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
 
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading && (
-          <p className="px-2 py-3 text-sm text-zinc-500">Loading sessions...</p>
+          <p className="px-2 py-3 text-sm text-zinc-500">Loading history...</p>
         )}
 
         {error && <p className="px-2 py-3 text-sm text-red-600">{error}</p>}
 
         {!isLoading && !error && sessions.length === 0 && (
-          <p className="px-2 py-3 text-sm text-zinc-500">No sessions yet.</p>
+          <p className="px-4 py-12 text-center text-sm leading-relaxed text-zinc-400">
+            No practice sessions yet — generate a question and submit an answer
+            to get started.
+          </p>
         )}
 
         <ul className="flex flex-col gap-1">

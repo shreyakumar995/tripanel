@@ -16,15 +16,17 @@ type EvaluateResponse = Record<
     score?: number;
     reasoning?: string;
     weaknesses?: string[];
+    failed?: boolean;
   }
 >;
 
 function toResults(payload: EvaluateResponse): ScoreResult[] {
   return Object.values(payload).map((item) => ({
     persona: item.persona ?? "Unknown persona",
-    score: typeof item.score === "number" ? item.score : 0,
-    reasoning: item.reasoning ?? "",
+    score: item.score,
+    reasoning: item.reasoning,
     weaknesses: Array.isArray(item.weaknesses) ? item.weaknesses : [],
+    failed: Boolean(item.failed),
   }));
 }
 
@@ -32,6 +34,7 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [results, setResults] = useState<ScoreResult[] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [error, setError] = useState("");
 
   function handleSelectSession(session: InterviewSession) {
@@ -54,6 +57,7 @@ export default function Home() {
     }
 
     setIsSubmitting(true);
+    setHasSubmitted(true);
     setError("");
 
     try {
@@ -98,9 +102,26 @@ export default function Home() {
             </p>
           )}
 
+          {results === null && !isSubmitting && !hasSubmitted && (
+            <p className="rounded-xl border border-dashed border-zinc-200 bg-white px-6 py-10 text-center text-sm text-zinc-400">
+              Pick a track and generate a question to begin your mock interview.
+            </p>
+          )}
+
           {results && results.length > 0 && (
             <div className="flex flex-col gap-3">
-              <ConsistencyBadge scores={results.map((result) => result.score)} />
+              {results.some(
+                (result) => !result.failed && typeof result.score === "number",
+              ) && (
+                <ConsistencyBadge
+                  scores={results
+                    .filter(
+                      (result) =>
+                        !result.failed && typeof result.score === "number",
+                    )
+                    .map((result) => result.score as number)}
+                />
+              )}
               <ScorePanel results={results} />
             </div>
           )}

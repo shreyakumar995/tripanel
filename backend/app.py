@@ -32,12 +32,18 @@ def evaluate():
 
     if not question or not answer:
         return jsonify({"error": "question and answer are required"}), 400
+   
 
     def run_persona(item):
         key, persona = item
-        result = call_persona(persona["system_prompt"], question, answer)
-        result["persona"] = persona["name"]
+        try:
+            result = call_persona(persona["system_prompt"], question, answer)
+            result["persona"] = persona["name"]
+            result["failed"] = False
+        except Exception as e:
+            result = {"persona": persona["name"], "failed": True, "error": str(e)}
         return key, result
+        
 
     with ThreadPoolExecutor(max_workers=3) as executor:
         results = dict(executor.map(run_persona, PERSONAS.items()))
@@ -47,13 +53,15 @@ def evaluate():
     db.session.flush()
 
     for key, result in results.items():
-        pr=PersonaResult(
-            session_id=session.id,
-            persona_name=result["persona"],
-            score=result["score"],
-            reasoning=result["reasoning"])
-        db.session.add(pr)
-    db.session.commit()
+        if not result.get("failed"):
+            pr=PersonaResult(
+                session_id=session.id,
+                persona_name=result["persona"],
+                score=result["score"],
+                reasoning=result["reasoning"])
+            db.session.add(pr)
+            db.session.commit()
+        
 
     return jsonify(results)
 @app.route("/question",methods=["POST"])
