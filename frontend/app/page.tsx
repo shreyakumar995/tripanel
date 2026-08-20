@@ -8,6 +8,7 @@ import HistorySidebar, {
 } from "./components/HistorySidebar";
 import QuestionCard from "./components/QuestionCard";
 import ScorePanel, { type ScoreResult } from "./components/ScorePanel";
+import WebcamPreview from "./components/WebcamPreview";
 
 type EvaluateResponse = Record<
   string,
@@ -88,7 +89,7 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
           <QuestionCard onQuestionChange={setQuestion} />
           <AnswerInput isSubmitting={isSubmitting} onSubmit={handleSubmit} />
-
+          <WebcamPreview />
           {isSubmitting && (
             <p className="flex items-center gap-2 text-sm text-zinc-600">
               <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
