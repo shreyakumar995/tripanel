@@ -12,6 +12,14 @@ const TRACK_KEYS: Record<Track, string> = {
   "HR Behavioral": "hr_behavioral",
 };
 
+function speakQuestion(text: string) {
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
 type QuestionCardProps = {
   onQuestionChange: (question: string) => void;
 };
@@ -46,6 +54,7 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
 
       setQuestion(nextQuestion);
       onQuestionChange(nextQuestion);
+      speakQuestion(nextQuestion);
     } catch {
       setError("Could not generate a question. Check that the backend is running.");
     } finally {
