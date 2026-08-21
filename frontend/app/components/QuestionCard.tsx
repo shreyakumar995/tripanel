@@ -63,8 +63,11 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   }
 
   return (
-    <section className="rounded-xl border border-border-subtle bg-surface p-6">
-      <div className="flex flex-wrap gap-2">
+    <section className="rounded-xl border border-border-subtle bg-surface p-6 sm:p-7">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-muted">
+        Question
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
         {TRACKS.map((option) => {
           const isActive = selectedTrack === option;
           return (
@@ -72,10 +75,10 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
               key={option}
               type="button"
               onClick={() => setSelectedTrack(option)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-text-primary text-background"
-                  : "bg-background text-text-muted hover:text-text-primary"
+                  ? "bg-accent text-background"
+                  : "bg-background text-text-muted hover:text-ivory"
               }`}
             >
               {option}
@@ -88,19 +91,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         type="button"
         onClick={generateQuestion}
         disabled={isGenerating}
-        className="mt-5 rounded-lg bg-text-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-white disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
+        className="mt-5 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-accent-dim disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
       >
         {isGenerating ? "Generating..." : "Generate Question"}
       </button>
 
       <div
-        className={`mt-5 min-h-28 rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed ${
-          question ? "text-text-primary" : "text-text-muted"
+        className={`mt-5 min-h-28 rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed sm:text-base ${
+          question ? "text-ivory" : "text-text-muted"
         }`}
       >
         {isGenerating ? (
           <span className="inline-flex items-center gap-2 text-text-muted">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-text-primary" />
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-accent" />
             Generating question...
           </span>
         ) : (

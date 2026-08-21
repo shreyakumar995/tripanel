@@ -33,16 +33,16 @@ export default function WebcamPreview() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-border-subtle bg-surface p-4">
+    <div className="rounded-xl border border-border-subtle bg-surface p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-text-primary">Camera</span>
+        <span className="text-sm font-medium text-ivory">Camera</span>
         <button
           type="button"
           onClick={isOn ? stopCamera : startCamera}
-          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+          className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
             isOn
               ? "bg-status-red text-white hover:bg-status-red/90"
-              : "bg-text-primary text-background hover:bg-white"
+              : "bg-accent text-background hover:bg-accent-dim"
           }`}
         >
           {isOn ? "Turn Off" : "Turn On"}

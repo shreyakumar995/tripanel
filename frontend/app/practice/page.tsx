@@ -85,14 +85,22 @@ export default function Home() {
   return (
     <div className="flex min-h-0 flex-1 bg-background">
       <HistorySidebar onSelectSession={handleSelectSession} />
-      <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+          <div>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight text-ivory">
+              Practice studio
+            </h1>
+            <p className="mt-2 text-base text-text-muted">
+              Generate a question, answer under pressure, get scored by the panel.
+            </p>
+          </div>
           <QuestionCard onQuestionChange={setQuestion} />
           <AnswerInput isSubmitting={isSubmitting} onSubmit={handleSubmit} />
           <WebcamPreview />
           {isSubmitting && (
             <p className="flex items-center gap-2 text-sm text-text-muted">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-text-primary" />
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-accent" />
               Evaluating your answer...
             </p>
           )}
@@ -104,7 +112,7 @@ export default function Home() {
           )}
 
           {results === null && !isSubmitting && !hasSubmitted && (
-            <p className="rounded-xl border border-dashed border-border-subtle bg-surface px-6 py-10 text-center text-sm text-text-muted">
+            <p className="border-t border-border-subtle pt-8 text-base text-text-muted">
               Pick a track and generate a question to begin your mock interview.
             </p>
           )}

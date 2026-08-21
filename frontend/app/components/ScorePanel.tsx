@@ -11,19 +11,19 @@ const PERSONA_STYLES: Record<
   { border: string; avatar: string; initial: string }
 > = {
   "Strict Technical Reviewer": {
-    border: "border-t-[3px] border-t-persona-technical border-border-subtle",
-    avatar: "bg-persona-technical/15 text-persona-technical",
-    initial: "S",
+    border: "border-t-[3px] border-t-accent border-border-subtle",
+    avatar: "bg-accent/15 text-accent",
+    initial: "R",
   },
   "Friendly HR Interviewer": {
-    border: "border-t-[3px] border-t-persona-hr border-border-subtle",
-    avatar: "bg-persona-hr/15 text-persona-hr",
-    initial: "F",
+    border: "border-t-[3px] border-t-ivory border-border-subtle",
+    avatar: "bg-ivory/10 text-ivory",
+    initial: "P",
   },
   "System Design Skeptic": {
-    border: "border-t-[3px] border-t-persona-systemdesign border-border-subtle",
-    avatar: "bg-persona-systemdesign/15 text-persona-systemdesign",
-    initial: "S",
+    border: "border-t-[3px] border-t-silver border-border-subtle",
+    avatar: "bg-silver/15 text-silver",
+    initial: "A",
   },
 };
 
@@ -49,7 +49,7 @@ export default function ScorePanel({ results }: ScorePanelProps) {
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-status-red/15 font-heading text-sm font-semibold text-status-red">
                   {initial}
                 </span>
-                <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
+                <h2 className="font-heading text-sm font-semibold tracking-tight text-ivory">
                   {persona}
                 </h2>
               </div>
@@ -67,7 +67,7 @@ export default function ScorePanel({ results }: ScorePanelProps) {
         return (
           <article
             key={persona || index}
-            className={`rounded-xl border bg-surface p-6 ${
+            className={`rounded-xl border bg-surface p-6 transition-colors hover:bg-surface-elevated ${
               style?.border ?? "border-border-subtle"
             }`}
           >
@@ -79,11 +79,11 @@ export default function ScorePanel({ results }: ScorePanelProps) {
               >
                 {style?.initial ?? initial}
               </span>
-              <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
+              <h2 className="font-heading text-sm font-semibold tracking-tight text-ivory">
                 {persona}
               </h2>
             </div>
-            <p className="mt-4 font-mono text-4xl font-semibold tabular-nums tracking-tight text-text-primary">
+            <p className="mt-4 font-mono text-4xl font-semibold tabular-nums tracking-tight text-ivory">
               {typeof result.score === "number" ? `${result.score}/10` : "—"}
             </p>
             {result.reasoning ? (
@@ -96,7 +96,7 @@ export default function ScorePanel({ results }: ScorePanelProps) {
                 {weaknesses.map((weakness) => (
                   <span
                     key={weakness}
-                    className="rounded-full bg-background px-2.5 py-1 text-xs font-medium text-text-muted"
+                    className="rounded-full border border-border-subtle px-2.5 py-1 text-xs font-medium text-text-muted"
                   >
                     {weakness}
                   </span>

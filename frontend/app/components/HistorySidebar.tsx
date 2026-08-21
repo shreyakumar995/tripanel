@@ -79,8 +79,11 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-r border-border-subtle bg-surface">
-      <div className="border-b border-border-subtle px-4 py-3">
-        <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
+      <div className="border-b border-border-subtle px-5 py-4">
+        <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
+          Sessions
+        </p>
+        <h2 className="mt-1 font-heading text-sm font-semibold tracking-tight text-ivory">
           History
         </h2>
       </div>
@@ -112,13 +115,13 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
                     setSelectedId(session.id);
                     onSelectSession(session);
                   }}
-                  className={`w-full rounded-lg px-3 py-2.5 text-left transition-colors ${
+                  className={`w-full rounded-md px-3 py-2.5 text-left transition-colors ${
                     isSelected
-                      ? "bg-background text-text-primary ring-1 ring-border-subtle"
-                      : "text-text-primary hover:bg-background/70"
+                      ? "bg-background text-ivory ring-1 ring-accent/30"
+                      : "text-ivory hover:bg-background/70"
                   }`}
                 >
-                  <p className="text-xs font-medium text-text-primary">
+                  <p className="text-xs font-medium text-ivory">
                     {trackLabel(session.track)}
                   </p>
                   <p className="mt-1 text-sm leading-snug text-text-muted">
@@ -126,7 +129,7 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
                   </p>
                   <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
                     <span>{formatDate(session.created_at)}</span>
-                    <span className="font-mono tabular-nums">
+                    <span className="font-mono tabular-nums text-accent">
                       {avg === null ? "—" : `${avg.toFixed(1)} avg`}
                     </span>
                   </div>

@@ -8,7 +8,7 @@ function getAgreement(scores: number[]) {
   if (spread <= 1) {
     return {
       label: "High Agreement",
-      className: "bg-status-green/15 text-status-green",
+      className: "bg-accent/15 text-accent",
     };
   }
 

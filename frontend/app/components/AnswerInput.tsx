@@ -55,13 +55,16 @@ export default function AnswerInput({
   }
 
   return (
-    <section className="rounded-xl border border-border-subtle bg-surface p-6">
+    <section className="rounded-xl border border-border-subtle bg-surface p-6 sm:p-7">
+      <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-text-muted">
+        Your answer
+      </p>
       <textarea
         value={answer}
         onChange={(event) => setAnswer(event.target.value)}
         placeholder="Type your answer here, or use the mic below..."
         rows={8}
-        className="w-full resize-y rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed text-text-primary placeholder:text-text-muted outline-none transition-colors focus:border-text-muted"
+        className="w-full resize-y rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed text-ivory placeholder:text-text-muted outline-none transition-colors focus:border-accent/40"
       />
 
       <p className="mt-2 text-sm text-text-muted">
@@ -72,10 +75,10 @@ export default function AnswerInput({
         <button
           type="button"
           onClick={isListening ? stopListening : startListening}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             isListening
               ? "bg-status-red text-white hover:bg-status-red/90"
-              : "bg-background text-text-muted hover:text-text-primary"
+              : "border border-border-subtle bg-background text-text-muted hover:text-ivory"
           }`}
         >
           {isListening ? "● Stop Recording" : "🎤 Speak Answer"}
@@ -85,7 +88,7 @@ export default function AnswerInput({
           type="button"
           disabled={isEmpty || isSubmitting}
           onClick={() => onSubmit(answer)}
-          className="rounded-lg bg-text-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-white disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-accent-dim disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
         >
           {isSubmitting ? "Submitting..." : "Submit Answer"}
         </button>
