@@ -12,17 +12,17 @@ const PERSONA_STYLES: Record<
 > = {
   "Strict Technical Reviewer": {
     border: "border-t-[3px] border-t-accent border-border-subtle",
-    avatar: "bg-accent/15 text-accent",
+    avatar: "bg-accent/12 text-accent",
     initial: "R",
   },
   "Friendly HR Interviewer": {
-    border: "border-t-[3px] border-t-ivory border-border-subtle",
+    border: "border-t-[3px] border-t-ivory/50 border-border-subtle",
     avatar: "bg-ivory/10 text-ivory",
     initial: "P",
   },
   "System Design Skeptic": {
-    border: "border-t-[3px] border-t-silver border-border-subtle",
-    avatar: "bg-silver/15 text-silver",
+    border: "border-t-[3px] border-t-text-muted border-border-subtle",
+    avatar: "bg-surface-elevated text-text-muted",
     initial: "A",
   },
 };
@@ -43,17 +43,17 @@ export default function ScorePanel({ results }: ScorePanelProps) {
           return (
             <article
               key={persona || index}
-              className="rounded-xl border border-border-subtle border-t-[3px] border-t-status-red bg-surface p-6"
+              className="rounded-xl border border-border-subtle border-t-[3px] border-t-oxblood-muted bg-surface p-6"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-status-red/15 font-heading text-sm font-semibold text-status-red">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-oxblood/20 font-heading text-sm font-semibold text-oxblood-muted">
                   {initial}
                 </span>
                 <h2 className="font-heading text-sm font-semibold tracking-tight text-ivory">
                   {persona}
                 </h2>
               </div>
-              <p className="mt-3 text-sm font-medium text-status-red">
+              <p className="mt-3 text-sm font-medium text-oxblood-muted">
                 Failed to load
               </p>
             </article>
@@ -63,6 +63,8 @@ export default function ScorePanel({ results }: ScorePanelProps) {
         const weaknesses = Array.isArray(result.weaknesses)
           ? result.weaknesses
           : [];
+        const scoreLow =
+          typeof result.score === "number" && result.score <= 5;
 
         return (
           <article
@@ -83,7 +85,11 @@ export default function ScorePanel({ results }: ScorePanelProps) {
                 {persona}
               </h2>
             </div>
-            <p className="mt-4 font-mono text-4xl font-semibold tabular-nums tracking-tight text-ivory">
+            <p
+              className={`mt-4 font-mono text-4xl font-semibold tabular-nums tracking-tight ${
+                scoreLow ? "text-oxblood-muted" : "text-ivory"
+              }`}
+            >
               {typeof result.score === "number" ? `${result.score}/10` : "—"}
             </p>
             {result.reasoning ? (
@@ -96,7 +102,7 @@ export default function ScorePanel({ results }: ScorePanelProps) {
                 {weaknesses.map((weakness) => (
                   <span
                     key={weakness}
-                    className="rounded-full border border-border-subtle px-2.5 py-1 text-xs font-medium text-text-muted"
+                    className="rounded-full border border-oxblood/30 bg-oxblood/10 px-2.5 py-1 text-xs font-medium text-oxblood-muted"
                   >
                     {weakness}
                   </span>

@@ -42,7 +42,7 @@ export default function WebcamPreview() {
           className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
             isOn
               ? "bg-status-red text-white hover:bg-status-red/90"
-              : "bg-accent text-background hover:bg-accent-dim"
+              : "btn-lime text-background"
           }`}
         >
           {isOn ? "Turn Off" : "Turn On"}

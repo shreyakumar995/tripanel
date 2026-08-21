@@ -8,20 +8,20 @@ function getAgreement(scores: number[]) {
   if (spread <= 1) {
     return {
       label: "High Agreement",
-      className: "bg-accent/15 text-accent",
+      className: "bg-accent/12 text-accent",
     };
   }
 
   if (spread <= 3) {
     return {
-      label: "Some Disagreement",
-      className: "bg-status-yellow/15 text-status-yellow",
+      label: "Mixed Signal",
+      className: "bg-ivory/8 text-ivory",
     };
   }
 
   return {
-    label: "Flagged: Raters Disagree Significantly",
-    className: "bg-status-red/15 text-status-red",
+    label: "Low Agreement — Investigate",
+    className: "bg-oxblood/20 text-oxblood-muted",
   };
 }
 
@@ -30,7 +30,7 @@ export default function ConsistencyBadge({ scores }: ConsistencyBadgeProps) {
 
   return (
     <span
-      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${className}`}
+      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-medium ${className}`}
     >
       {label}
     </span>

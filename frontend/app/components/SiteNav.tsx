@@ -3,21 +3,31 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+function BrandMark() {
+  return (
+    <span className="flex items-end gap-[3px]" aria-hidden>
+      <span className="h-2.5 w-[3px] rounded-full bg-ivory/40" />
+      <span className="h-4 w-[3px] rounded-full bg-accent" />
+      <span className="h-3 w-[3px] rounded-full bg-ivory/55" />
+    </span>
+  );
+}
+
 export default function SiteNav() {
   const pathname = usePathname();
   const onPractice = pathname?.startsWith("/practice");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border-subtle/60 bg-background/75 backdrop-blur-xl">
-      <div className="mx-auto flex h-[4.25rem] max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-14">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
-          <span className="font-heading text-[1.05rem] font-semibold tracking-[-0.02em] text-ivory">
+    <header className="sticky top-0 z-50 border-b border-border-subtle/50 bg-background/70 backdrop-blur-xl">
+      <div className="mx-auto flex h-[4.5rem] max-w-[1480px] items-center justify-between px-6 sm:px-10 lg:px-16">
+        <Link href="/" className="flex items-center gap-3">
+          <BrandMark />
+          <span className="font-heading text-[1.0625rem] font-semibold tracking-[-0.02em] text-ivory">
             TriPanel
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-10 text-[0.9375rem] text-text-muted md:flex">
+        <nav className="hidden items-center gap-11 text-[0.9375rem] text-text-muted md:flex">
           <a
             href={onPractice ? "/#interviewers" : "#interviewers"}
             className="transition-colors duration-200 hover:text-ivory"
@@ -43,7 +53,7 @@ export default function SiteNav() {
         {!onPractice ? (
           <Link
             href="/practice"
-            className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-background transition-all duration-200 hover:bg-accent-dim hover:shadow-[0_0_0_4px_rgba(200,245,66,0.12)]"
+            className="btn-lime rounded-full px-5 py-2.5 text-sm font-semibold text-background transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(199,244,58,0.14)]"
           >
             Start practicing
           </Link>

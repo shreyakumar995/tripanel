@@ -88,7 +88,7 @@ export default function AnswerInput({
           type="button"
           disabled={isEmpty || isSubmitting}
           onClick={() => onSubmit(answer)}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-accent-dim disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
+          className="btn-lime rounded-md px-4 py-2 text-sm font-semibold text-background transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted disabled:bg-none"
         >
           {isSubmitting ? "Submitting..." : "Submit Answer"}
         </button>
