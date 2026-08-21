@@ -8,20 +8,20 @@ function getAgreement(scores: number[]) {
   if (spread <= 1) {
     return {
       label: "High Agreement",
-      className: "bg-green-100 text-green-800",
+      className: "bg-status-green/15 text-status-green",
     };
   }
 
   if (spread <= 3) {
     return {
       label: "Some Disagreement",
-      className: "bg-yellow-100 text-yellow-800",
+      className: "bg-status-yellow/15 text-status-yellow",
     };
   }
 
   return {
     label: "Flagged: Raters Disagree Significantly",
-    className: "bg-red-100 text-red-800",
+    className: "bg-status-red/15 text-status-red",
   };
 }
 

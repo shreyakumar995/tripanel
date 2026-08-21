@@ -6,10 +6,25 @@ export type ScoreResult = {
   failed?: boolean;
 };
 
-const ACCENT_BY_PERSONA: Record<string, string> = {
-  "Strict Technical Reviewer": "border-t-4 border-t-orange-500 border-zinc-200",
-  "Friendly HR Interviewer": "border-t-4 border-t-blue-500 border-zinc-200",
-  "System Design Skeptic": "border-t-4 border-t-purple-500 border-zinc-200",
+const PERSONA_STYLES: Record<
+  string,
+  { border: string; avatar: string; initial: string }
+> = {
+  "Strict Technical Reviewer": {
+    border: "border-t-[3px] border-t-persona-technical border-border-subtle",
+    avatar: "bg-persona-technical/15 text-persona-technical",
+    initial: "S",
+  },
+  "Friendly HR Interviewer": {
+    border: "border-t-[3px] border-t-persona-hr border-border-subtle",
+    avatar: "bg-persona-hr/15 text-persona-hr",
+    initial: "F",
+  },
+  "System Design Skeptic": {
+    border: "border-t-[3px] border-t-persona-systemdesign border-border-subtle",
+    avatar: "bg-persona-systemdesign/15 text-persona-systemdesign",
+    initial: "S",
+  },
 };
 
 type ScorePanelProps = {
@@ -21,17 +36,24 @@ export default function ScorePanel({ results }: ScorePanelProps) {
     <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {results.map((result, index) => {
         const persona = result.persona || "Unknown persona";
+        const style = PERSONA_STYLES[persona];
+        const initial = persona.trim().charAt(0).toUpperCase() || "?";
 
         if (result.failed) {
           return (
             <article
               key={persona || index}
-              className="rounded-xl border border-red-200 bg-white p-6 shadow-sm border-t-4 border-t-red-500"
+              className="rounded-xl border border-border-subtle border-t-[3px] border-t-status-red bg-surface p-6"
             >
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">
-                {persona}
-              </h2>
-              <p className="mt-3 text-sm font-medium text-red-600">
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-status-red/15 font-heading text-sm font-semibold text-status-red">
+                  {initial}
+                </span>
+                <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
+                  {persona}
+                </h2>
+              </div>
+              <p className="mt-3 text-sm font-medium text-status-red">
                 Failed to load
               </p>
             </article>
@@ -45,18 +67,27 @@ export default function ScorePanel({ results }: ScorePanelProps) {
         return (
           <article
             key={persona || index}
-            className={`rounded-xl border bg-white p-6 shadow-sm ${
-              ACCENT_BY_PERSONA[persona] ?? "border-zinc-200"
+            className={`rounded-xl border bg-surface p-6 ${
+              style?.border ?? "border-border-subtle"
             }`}
           >
-            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">
-              {persona}
-            </h2>
-            <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900">
+            <div className="flex items-center gap-3">
+              <span
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-heading text-sm font-semibold ${
+                  style?.avatar ?? "bg-text-muted/15 text-text-muted"
+                }`}
+              >
+                {style?.initial ?? initial}
+              </span>
+              <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
+                {persona}
+              </h2>
+            </div>
+            <p className="mt-4 font-mono text-4xl font-semibold tabular-nums tracking-tight text-text-primary">
               {typeof result.score === "number" ? `${result.score}/10` : "—"}
             </p>
             {result.reasoning ? (
-              <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">
                 {result.reasoning}
               </p>
             ) : null}
@@ -65,7 +96,7 @@ export default function ScorePanel({ results }: ScorePanelProps) {
                 {weaknesses.map((weakness) => (
                   <span
                     key={weakness}
-                    className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600"
+                    className="rounded-full bg-background px-2.5 py-1 text-xs font-medium text-text-muted"
                   >
                     {weakness}
                   </span>

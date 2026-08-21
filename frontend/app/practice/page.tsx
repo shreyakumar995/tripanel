@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import AnswerInput from "./components/AnswerInput";
-import ConsistencyBadge from "./components/ConsistencyBadge";
+import AnswerInput from "../components/AnswerInput";
+import ConsistencyBadge from "../components/ConsistencyBadge";
 import HistorySidebar, {
   type InterviewSession,
-} from "./components/HistorySidebar";
-import QuestionCard from "./components/QuestionCard";
-import ScorePanel, { type ScoreResult } from "./components/ScorePanel";
-import WebcamPreview from "./components/WebcamPreview";
+} from "../components/HistorySidebar";
+import QuestionCard from "../components/QuestionCard";
+import ScorePanel, { type ScoreResult } from "../components/ScorePanel";
+import WebcamPreview from "../components/WebcamPreview";
 
 type EvaluateResponse = Record<
   string,
@@ -83,7 +83,7 @@ export default function Home() {
   }
   
   return (
-    <div className="flex flex-1 min-h-0 bg-zinc-100">
+    <div className="flex min-h-0 flex-1 bg-background">
       <HistorySidebar onSelectSession={handleSelectSession} />
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
@@ -91,20 +91,20 @@ export default function Home() {
           <AnswerInput isSubmitting={isSubmitting} onSubmit={handleSubmit} />
           <WebcamPreview />
           {isSubmitting && (
-            <p className="flex items-center gap-2 text-sm text-zinc-600">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
+            <p className="flex items-center gap-2 text-sm text-text-muted">
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-text-primary" />
               Evaluating your answer...
             </p>
           )}
 
           {error && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded-lg border border-status-red/30 bg-status-red/10 px-4 py-3 text-sm text-status-red">
               {error}
             </p>
           )}
 
           {results === null && !isSubmitting && !hasSubmitted && (
-            <p className="rounded-xl border border-dashed border-zinc-200 bg-white px-6 py-10 text-center text-sm text-zinc-400">
+            <p className="rounded-xl border border-dashed border-border-subtle bg-surface px-6 py-10 text-center text-sm text-text-muted">
               Pick a track and generate a question to begin your mock interview.
             </p>
           )}

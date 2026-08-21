@@ -63,7 +63,7 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   }
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-border-subtle bg-surface p-6">
       <div className="flex flex-wrap gap-2">
         {TRACKS.map((option) => {
           const isActive = selectedTrack === option;
@@ -74,8 +74,8 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
               onClick={() => setSelectedTrack(option)}
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  ? "bg-text-primary text-background"
+                  : "bg-background text-text-muted hover:text-text-primary"
               }`}
             >
               {option}
@@ -88,19 +88,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         type="button"
         onClick={generateQuestion}
         disabled={isGenerating}
-        className="mt-5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 disabled:hover:bg-zinc-300"
+        className="mt-5 rounded-lg bg-text-primary px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-white disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted"
       >
         {isGenerating ? "Generating..." : "Generate Question"}
       </button>
 
       <div
-        className={`mt-5 min-h-28 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm leading-relaxed ${
-          question ? "text-zinc-800" : "text-zinc-500"
+        className={`mt-5 min-h-28 rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed ${
+          question ? "text-text-primary" : "text-text-muted"
         }`}
       >
         {isGenerating ? (
-          <span className="inline-flex items-center gap-2">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
+          <span className="inline-flex items-center gap-2 text-text-muted">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-text-primary" />
             Generating question...
           </span>
         ) : (
@@ -108,9 +108,7 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         )}
       </div>
 
-      {error && (
-        <p className="mt-3 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-3 text-sm text-status-red">{error}</p>}
     </section>
   );
 }

@@ -1,64 +1,69 @@
 "use client";
-import { useRef,useState,useEffect } from "react";
-export default function WebcamPreview() {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const[error,setError] = useState("");
-    const[isOn,setIsOn] = useState(false);
-    const streamRef = useRef<MediaStream | null>(null);
 
-    async function startCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            streamRef.current = stream;
-            if(videoRef.current){
-                videoRef.current.srcObject = stream;
-            }
-            setIsOn(true);
-            setError("");
-        } catch {
-            setError("Failed to access webcam. Please check your browser permissions.");
-        }
-    }
-    function stopCamera() {
-        streamRef.current?.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-        setIsOn(false);
+import { useEffect, useRef, useState } from "react";
+
+export default function WebcamPreview() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [error, setError] = useState("");
+  const [isOn, setIsOn] = useState(false);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-    
-      useEffect(() => {
-        return () => stopCamera(); // cleanup: stop camera if component unmounts
-      }, []);
-    
-      return (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-zinc-700">Camera</span>
-            <button
-              type="button"
-              onClick={isOn ? stopCamera : startCamera}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                isOn ? "bg-red-600 text-white hover:bg-red-700" : "bg-zinc-900 text-white hover:bg-zinc-800"
-              }`}
-            >
-              {isOn ? "Turn Off" : "Turn On"}
-            </button>
-          </div>
-    
-          {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
-    
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className={`w-full rounded-lg bg-zinc-900 aspect-video ${isOn ? "" : "hidden"}`}
-          />
-    
-          {!isOn && (
-            <div className="w-full aspect-video rounded-lg bg-zinc-100 flex items-center justify-center text-sm text-zinc-400">
-              Camera off
-            </div>
-          )}
+      setIsOn(true);
+      setError("");
+    } catch {
+      setError("Failed to access webcam. Please check your browser permissions.");
+    }
+  }
+
+  function stopCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setIsOn(false);
+  }
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
+
+  return (
+    <div className="rounded-xl border border-border-subtle bg-surface p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm font-medium text-text-primary">Camera</span>
+        <button
+          type="button"
+          onClick={isOn ? stopCamera : startCamera}
+          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            isOn
+              ? "bg-status-red text-white hover:bg-status-red/90"
+              : "bg-text-primary text-background hover:bg-white"
+          }`}
+        >
+          {isOn ? "Turn Off" : "Turn On"}
+        </button>
+      </div>
+
+      {error && <p className="mb-2 text-xs text-status-red">{error}</p>}
+
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        className={`aspect-video w-full rounded-lg bg-background ${isOn ? "" : "hidden"}`}
+      />
+
+      {!isOn && (
+        <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-background text-sm text-text-muted">
+          Camera off
         </div>
-      );
-    } 
+      )}
+    </div>
+  );
+}

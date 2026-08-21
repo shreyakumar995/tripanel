@@ -78,22 +78,22 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
   }, []);
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-r border-zinc-200 bg-white">
-      <div className="border-b border-zinc-200 px-4 py-3">
-        <h2 className="text-sm font-semibold tracking-tight text-zinc-900">
+    <aside className="flex w-72 shrink-0 flex-col border-r border-border-subtle bg-surface">
+      <div className="border-b border-border-subtle px-4 py-3">
+        <h2 className="font-heading text-sm font-semibold tracking-tight text-text-primary">
           History
         </h2>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading && (
-          <p className="px-2 py-3 text-sm text-zinc-500">Loading history...</p>
+          <p className="px-2 py-3 text-sm text-text-muted">Loading history...</p>
         )}
 
-        {error && <p className="px-2 py-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="px-2 py-3 text-sm text-status-red">{error}</p>}
 
         {!isLoading && !error && sessions.length === 0 && (
-          <p className="px-4 py-12 text-center text-sm leading-relaxed text-zinc-400">
+          <p className="px-4 py-12 text-center text-sm leading-relaxed text-text-muted">
             No practice sessions yet — generate a question and submit an answer
             to get started.
           </p>
@@ -114,27 +114,19 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
                   }}
                   className={`w-full rounded-lg px-3 py-2.5 text-left transition-colors ${
                     isSelected
-                      ? "bg-zinc-900 text-white"
-                      : "text-zinc-800 hover:bg-zinc-100"
+                      ? "bg-background text-text-primary ring-1 ring-border-subtle"
+                      : "text-text-primary hover:bg-background/70"
                   }`}
                 >
-                  <p className="text-xs font-medium">
+                  <p className="text-xs font-medium text-text-primary">
                     {trackLabel(session.track)}
                   </p>
-                  <p
-                    className={`mt-1 text-sm leading-snug ${
-                      isSelected ? "text-zinc-200" : "text-zinc-600"
-                    }`}
-                  >
+                  <p className="mt-1 text-sm leading-snug text-text-muted">
                     {truncate(session.question)}
                   </p>
-                  <div
-                    className={`mt-2 flex items-center justify-between text-xs ${
-                      isSelected ? "text-zinc-300" : "text-zinc-500"
-                    }`}
-                  >
+                  <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
                     <span>{formatDate(session.created_at)}</span>
-                    <span className="tabular-nums">
+                    <span className="font-mono tabular-nums">
                       {avg === null ? "—" : `${avg.toFixed(1)} avg`}
                     </span>
                   </div>
