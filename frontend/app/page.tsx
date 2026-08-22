@@ -1,7 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import ScrollProgress from "./components/ScrollProgress";
+import SignalAtmosphere from "./components/SignalAtmosphere";
+import {
+  useCountUp,
+  useInView,
+  usePrefersReducedMotion,
+} from "./hooks/useMotion";
 
 const PANEL = [
   {
@@ -121,7 +133,7 @@ function SectionLabel({
   children: string;
 }) {
   return (
-    <p className="flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] text-text-muted">
+    <p className="flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.2em] text-text-muted sm:text-[13px]">
       <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
       <span>
         {index} / {children}
@@ -130,14 +142,42 @@ function SectionLabel({
   );
 }
 
-function Waveform() {
+function Reveal({
+  children,
+  className = "",
+  variant = "reveal",
+  delayMs = 0,
+  root,
+}: {
+  children: ReactNode;
+  className?: string;
+  variant?: "reveal" | "reveal-left" | "reveal-right" | "reveal-heading";
+  delayMs?: number;
+  root?: React.RefObject<Element | null>;
+}) {
+  const { ref, isInView } = useInView<HTMLDivElement>({ root, once: true });
+
+  return (
+    <div
+      ref={ref}
+      className={`${variant} ${isInView ? "is-visible" : ""} ${className}`}
+      style={{ transitionDelay: `${delayMs}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Waveform({ active = true }: { active?: boolean }) {
   const bars = [36, 68, 52, 88, 42, 76, 58, 92, 48, 70, 62, 84, 44, 74, 56, 80];
   return (
     <div className="flex h-7 items-end gap-[2px]" aria-hidden>
       {bars.map((h, i) => (
         <span
           key={i}
-          className="animate-waveform w-[2.5px] rounded-full bg-accent/80"
+          className={`w-[2.5px] rounded-full bg-accent/80 ${
+            active ? "animate-waveform" : ""
+          }`}
           style={{ height: `${h}%`, animationDelay: `${i * 0.06}s` }}
         />
       ))}
@@ -145,30 +185,40 @@ function Waveform() {
   );
 }
 
-function HeroInterviewMock() {
+function HeroInterviewMock({ poweredOn }: { poweredOn: boolean }) {
   const [seconds, setSeconds] = useState(742);
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (!poweredOn && !reduced) return;
     const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [poweredOn, reduced]);
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
+  const live = poweredOn || reduced;
 
   return (
     <div className="relative w-full">
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-8 bg-[radial-gradient(ellipse_at_center,_rgba(199,244,58,0.12),_transparent_68%)] blur-2xl"
+        className="pointer-events-none absolute -inset-8 bg-[radial-gradient(ellipse_at_center,_rgba(199,244,58,0.12),_transparent_68%)] blur-2xl transition-opacity duration-700"
+        style={{ opacity: live ? 1 : 0.35 }}
       />
 
       <div className="relative overflow-hidden rounded-xl bg-surface-elevated ring-1 ring-border-subtle">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle/80 px-5 py-3.5">
           <div className="flex items-center gap-3">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-35" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              {live && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-35" />
+              )}
+              <span
+                className={`relative inline-flex h-2 w-2 rounded-full ${
+                  live ? "bg-accent" : "bg-border-subtle"
+                }`}
+              />
             </span>
             <span className="text-sm text-text-muted">Panel room · Technical</span>
           </div>
@@ -200,7 +250,7 @@ function HeroInterviewMock() {
               </div>
               <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between bg-gradient-to-t from-background/90 to-transparent px-5 pb-4 pt-12">
                 <span className="text-sm text-text-muted">AI interviewer</span>
-                <Waveform />
+                <Waveform active={live} />
               </div>
             </div>
           </div>
@@ -260,7 +310,9 @@ function HeroInterviewMock() {
               <span className="text-ivory">You — </span>
               I’d use Floyd’s tortoise-and-hare… if pointers meet, there’s a
               cycle…
-              <span className="animate-cursor ml-1 inline-block h-3.5 w-[2px] bg-accent align-middle" />
+              {live && (
+                <span className="animate-cursor ml-1 inline-block h-3.5 w-[2px] bg-accent align-middle" />
+              )}
             </p>
           </div>
         </div>
@@ -269,14 +321,16 @@ function HeroInterviewMock() {
   );
 }
 
-function ScoreGauge() {
+function ScoreGauge({ active }: { active: boolean }) {
   const radius = 100;
   const stroke = 8;
   const c = 2 * Math.PI * radius;
-  // Strong arc ~82%, small oxblood segment for weakness (~8% of ring)
   const strong = c * 0.74;
   const weak = c * 0.08;
   const gap = c - strong - weak;
+  const display = useCountUp(8.2, active, { duration: 1200, decimals: 1 });
+  const reduced = usePrefersReducedMotion();
+  const drawn = active || reduced;
 
   return (
     <div className="relative flex h-60 w-60 items-center justify-center sm:h-72 sm:w-72">
@@ -298,8 +352,9 @@ function ScoreGauge() {
           stroke="currentColor"
           strokeWidth={stroke}
           strokeLinecap="round"
-          strokeDasharray={`${strong} ${c - strong}`}
-          className="text-accent"
+          strokeDasharray={c}
+          strokeDashoffset={drawn ? c - strong : c}
+          className="gauge-arc text-accent"
         />
         <circle
           cx="110"
@@ -311,12 +366,13 @@ function ScoreGauge() {
           strokeLinecap="round"
           strokeDasharray={`${weak} ${c - weak}`}
           strokeDashoffset={-(strong + gap * 0.15)}
-          className="text-oxblood-muted"
+          className="text-oxblood-muted transition-opacity duration-700"
+          style={{ opacity: drawn ? 1 : 0 }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-mono text-6xl font-semibold tracking-tight text-ivory sm:text-7xl">
-          8.2
+          {display.toFixed(1)}
         </span>
         <span className="mt-2 text-base text-text-muted">Composite /10</span>
       </div>
@@ -324,28 +380,34 @@ function ScoreGauge() {
   );
 }
 
-function AgreementViz() {
+function AgreementViz({ active }: { active: boolean }) {
+  const reduced = usePrefersReducedMotion();
+  const play = active || reduced;
+
   const states = [
     {
       id: "high",
       title: "High agreement",
       body: "Three signals align. Trust the composite.",
       dots: ["lime", "lime", "lime"] as const,
-      active: true,
+      featured: true,
+      from: ["-18px", "0px", "18px"],
     },
     {
       id: "mixed",
       title: "Mixed signal",
       body: "Two agree. One flags a weakness.",
       dots: ["lime", "lime", "oxblood"] as const,
-      active: false,
+      featured: false,
+      from: ["-14px", "0px", "22px"],
     },
     {
       id: "low",
       title: "Low agreement",
       body: "Perspectives diverge — investigate the gap.",
       dots: ["oxblood", "neutral", "oxblood"] as const,
-      active: false,
+      featured: false,
+      from: ["-24px", "0px", "24px"],
     },
   ];
 
@@ -356,21 +418,37 @@ function AgreementViz() {
           key={state.id}
           className={`border-border-subtle px-6 py-8 md:px-8 ${
             i < states.length - 1 ? "border-b md:border-b-0 md:border-r" : ""
-          } ${state.active ? "bg-surface/80" : ""}`}
+          } ${state.featured ? "bg-surface/80" : ""}`}
         >
-          <div className="flex items-center gap-2" aria-hidden>
+          <div className="flex h-8 items-center gap-2.5" aria-hidden>
             {state.dots.map((dot, di) => (
               <span
                 key={di}
-                className={`h-2.5 w-2.5 rounded-full ${
+                className={`h-2.5 w-2.5 rounded-full transition-all duration-700 ${
                   dot === "lime"
                     ? "bg-accent"
                     : dot === "oxblood"
                       ? "bg-oxblood-muted"
                       : "bg-border-subtle"
                 }`}
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        transform: play
+                          ? "translateX(0)"
+                          : `translateX(${state.from[di]})`,
+                        opacity: play ? 1 : 0.35,
+                        transitionDelay: `${200 + di * 120}ms`,
+                      }
+                }
               />
             ))}
+            {state.featured && play && (
+              <span className="ml-2 text-xs font-medium uppercase tracking-[0.14em] text-accent transition-opacity duration-700">
+                Aligned
+              </span>
+            )}
           </div>
           <h3 className="mt-5 font-heading text-xl font-semibold text-ivory">
             {state.title}
@@ -385,32 +463,122 @@ function AgreementViz() {
 }
 
 export default function LandingPage() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [heroScroll, setHeroScroll] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
   const [activeBlueprint, setActiveBlueprint] = useState(1);
+  const [blueprintKey, setBlueprintKey] = useState(0);
+  const reduced = usePrefersReducedMotion();
   const blueprint = BLUEPRINTS[activeBlueprint];
 
+  const scoring = useInView<HTMLDivElement>({
+    root: scrollRef,
+    once: true,
+    threshold: 0.2,
+  });
+  const agreement = useInView<HTMLDivElement>({
+    root: scrollRef,
+    once: true,
+    threshold: 0.25,
+  });
+  const journey = useInView<HTMLDivElement>({
+    root: scrollRef,
+    once: true,
+    threshold: 0.2,
+  });
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setHeroReady(true), reduced ? 0 : 1100);
+    return () => window.clearTimeout(t);
+  }, [reduced]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || reduced) return;
+
+    const onScroll = () => {
+      const p = Math.min(1, el.scrollTop / 420);
+      setHeroScroll(p);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [reduced]);
+
+  const heroOpacity = reduced ? 1 : 1 - heroScroll * 0.55;
+  const heroScale = reduced ? 1 : 1 - heroScroll * 0.06;
+  const heroY = reduced ? 0 : heroScroll * -36;
+  const copyOpacity = reduced ? 1 : 1 - heroScroll * 0.75;
+
   return (
-    <div className="flex-1 overflow-y-auto bg-background">
+    <div ref={scrollRef} className="relative flex-1 overflow-y-auto bg-background">
+      <ScrollProgress scrollRef={scrollRef} />
+
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_12%_20%,_rgba(199,244,58,0.08),_transparent_55%),radial-gradient(ellipse_45%_40%_at_92%_70%,_rgba(143,38,56,0.1),_transparent_55%),linear-gradient(180deg,#0b0d0e_0%,#141015_45%,#0b0d0e_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_12%_20%,_rgba(199,244,58,0.07),_transparent_55%),radial-gradient(ellipse_45%_40%_at_92%_70%,_rgba(143,38,56,0.09),_transparent_55%),linear-gradient(180deg,#0b0d0e_0%,#141015_45%,#0b0d0e_100%)]"
+          style={
+            reduced
+              ? undefined
+              : {
+                  transform: `translateY(${heroScroll * 40}px)`,
+                }
+          }
         />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-grid-faint opacity-[0.35]"
+          style={
+            reduced
+              ? undefined
+              : { transform: `translateY(${heroScroll * 18}px)` }
+          }
+        />
+        <div aria-hidden className="bg-grain absolute inset-0 opacity-60" />
+        <SignalAtmosphere />
 
         <div className="relative mx-auto grid max-w-[1480px] items-center gap-14 px-6 pb-20 pt-14 sm:px-10 sm:pb-28 sm:pt-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-16 lg:pb-32 lg:pt-20">
-          <div className="animate-fade-up max-w-[36rem]">
-            <h1 className="font-heading text-[3.4rem] font-semibold leading-[0.96] tracking-[-0.035em] text-ivory sm:text-6xl md:text-7xl lg:text-[5.15rem]">
-              Train for the
-              <br />
-              interview.
-              <br />
-              <span className="text-lime-gradient">Not the surprise.</span>
+          <div
+            className="max-w-[36rem]"
+            style={{ opacity: copyOpacity }}
+          >
+            <h1 className="font-heading text-[clamp(2.75rem,8vw,5.75rem)] font-semibold leading-[0.95] tracking-[-0.035em] text-ivory">
+              <span
+                className="hero-line block"
+                style={{ animationDelay: reduced ? "0ms" : "120ms" }}
+              >
+                Train for the
+              </span>
+              <span
+                className="hero-line block"
+                style={{ animationDelay: reduced ? "0ms" : "280ms" }}
+              >
+                interview.
+              </span>
+              <span
+                className="hero-line text-signal-mark block"
+                style={{ animationDelay: reduced ? "0ms" : "460ms" }}
+              >
+                Not the surprise.
+                <span className="signal-ticks" aria-hidden>
+                  <span style={{ animationDelay: "1.05s" }} />
+                  <span style={{ animationDelay: "1.18s" }} />
+                  <span style={{ animationDelay: "1.3s" }} />
+                </span>
+              </span>
             </h1>
-            <p className="mt-8 max-w-md text-lg leading-relaxed text-text-muted sm:text-xl">
+            <p
+              className="hero-line mt-8 max-w-md text-lg leading-relaxed text-text-muted sm:text-[1.1875rem]"
+              style={{ animationDelay: reduced ? "0ms" : "620ms" }}
+            >
               Three independent AI interviewers. When they agree, you trust the
               signal. When they diverge, you know exactly what to improve.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-5">
+            <div
+              className="hero-line mt-10 flex flex-wrap items-center gap-5"
+              style={{ animationDelay: reduced ? "0ms" : "780ms" }}
+            >
               <Link
                 href="/practice"
                 className="btn-lime rounded-full px-7 py-3.5 text-base font-semibold text-background transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(199,244,58,0.14)]"
@@ -427,14 +595,25 @@ export default function LandingPage() {
                 </span>
               </a>
             </div>
-            <p className="mt-12 text-sm tracking-wide text-text-muted">
+            <p
+              className="hero-line mt-12 text-sm tracking-wide text-text-muted"
+              style={{ animationDelay: reduced ? "0ms" : "900ms" }}
+            >
               Three perspectives.{" "}
               <span className="text-ivory">One clearer signal.</span>
             </p>
           </div>
 
-          <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            <HeroInterviewMock />
+          <div
+            className={reduced ? "" : "hero-power-on"}
+            style={{
+              animationDelay: reduced ? "0ms" : "980ms",
+              opacity: heroOpacity,
+              transform: `translateY(${heroY}px) scale(${heroScale})`,
+              transformOrigin: "center top",
+            }}
+          >
+            <HeroInterviewMock poweredOn={heroReady} />
           </div>
         </div>
       </section>
@@ -446,11 +625,12 @@ export default function LandingPage() {
       >
         <div
           id="interviewers"
-          className="mx-auto max-w-[1480px] scroll-mt-24 px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
+          className="relative mx-auto max-w-[1480px] scroll-mt-24 px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
         >
-          <div className="max-w-2xl">
+          <SignalAtmosphere className="opacity-40" />
+          <Reveal root={scrollRef} variant="reveal-heading" className="max-w-2xl">
             <SectionLabel index="01">The panel</SectionLabel>
-            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.025em] text-ivory sm:text-5xl">
+            <h2 className="mt-5 font-heading text-[clamp(2.25rem,5vw,3.5rem)] font-semibold tracking-[-0.025em] text-ivory">
               Three interviewers.
               <br />
               Three lenses.
@@ -459,46 +639,56 @@ export default function LandingPage() {
               Independent rubrics. No averaged mush — TriPanel compares their
               scores so feedback stays honest.
             </p>
-          </div>
+          </Reveal>
 
           <div className="mt-16 space-y-0 border-t border-border-subtle">
             {PANEL.map((person, i) => (
-              <article
+              <Reveal
                 key={person.id}
-                className={`group grid grid-cols-1 gap-8 border-b border-border-subtle py-10 transition-colors duration-300 hover:bg-secondary/60 md:grid-cols-12 md:gap-6 md:py-12 ${
-                  i === 0 ? "" : ""
-                }`}
+                root={scrollRef}
+                variant="reveal"
+                delayMs={reduced ? 0 : i * 140}
               >
-                <div className="flex items-start gap-5 md:col-span-4">
-                  <span className="font-mono text-sm text-text-muted">
-                    {person.number}
-                  </span>
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-elevated font-heading text-xl font-semibold text-ivory ring-1 ring-border-subtle transition-all duration-300 group-hover:ring-accent/35 group-hover:text-accent">
-                    {person.initial}
+                <article className="group grid grid-cols-1 gap-8 border-b border-border-subtle py-10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary/60 md:grid-cols-12 md:gap-6 md:py-12">
+                  <div className="flex items-start gap-5 md:col-span-4">
+                    <span className="font-mono text-sm text-text-muted">
+                      {person.number}
+                    </span>
+                    <div className="relative">
+                      <span
+                        className="absolute -left-1 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-accent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        aria-hidden
+                      />
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-elevated font-heading text-xl font-semibold text-ivory ring-1 ring-border-subtle transition-all duration-300 group-hover:ring-accent/35 group-hover:text-accent">
+                        {person.initial}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-muted transition-transform duration-300 group-hover:translate-x-0.5">
+                        {person.role}
+                      </p>
+                      <h3 className="mt-1 font-heading text-xl font-semibold text-ivory md:text-2xl">
+                        {person.name}
+                      </h3>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-text-muted">{person.role}</p>
-                    <h3 className="mt-1 font-heading text-xl font-semibold text-ivory md:text-2xl">
-                      {person.name}
-                    </h3>
+                  <div className="md:col-span-4 md:pt-1">
+                    <p className="text-base italic leading-relaxed text-text-muted">
+                      {person.identity}
+                    </p>
                   </div>
-                </div>
-                <div className="md:col-span-4 md:pt-1">
-                  <p className="text-base italic leading-relaxed text-text-muted">
-                    {person.identity}
-                  </p>
-                </div>
-                <div className="md:col-span-4 md:pt-1">
-                  <p className="text-sm text-text-muted">Evaluates</p>
-                  <ul className="mt-2 space-y-1">
-                    {person.evaluates.map((item) => (
-                      <li key={item} className="text-base text-ivory">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
+                  <div className="md:col-span-4 md:pt-1">
+                    <p className="text-sm text-text-muted">Evaluates</p>
+                    <ul className="mt-2 space-y-1">
+                      {person.evaluates.map((item) => (
+                        <li key={item} className="text-base text-ivory">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -509,11 +699,14 @@ export default function LandingPage() {
         id="scoring"
         className="scroll-mt-24 border-t border-border-subtle bg-secondary/50"
       >
-        <div className="mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
+        <div
+          ref={scoring.ref}
+          className="mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
+        >
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-5">
+            <Reveal root={scrollRef} variant="reveal-left" className="lg:col-span-5">
               <SectionLabel index="02">Multi-signal scoring</SectionLabel>
-              <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.025em] text-ivory sm:text-5xl">
+              <h2 className="mt-5 font-heading text-[clamp(2.25rem,5vw,3.5rem)] font-semibold tracking-[-0.025em] text-ivory">
                 Performance that holds up under a panel
               </h2>
               <p className="mt-5 max-w-md text-lg leading-relaxed text-text-muted">
@@ -523,7 +716,7 @@ export default function LandingPage() {
 
               <dl className="mt-12 space-y-8 border-t border-border-subtle pt-10">
                 <div>
-                  <dt className="text-sm uppercase tracking-[0.16em] text-text-muted">
+                  <dt className="text-[12px] uppercase tracking-[0.16em] text-text-muted">
                     Strongest area
                   </dt>
                   <dd className="mt-2 font-heading text-xl text-ivory">
@@ -531,7 +724,7 @@ export default function LandingPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm uppercase tracking-[0.16em] text-text-muted">
+                  <dt className="text-[12px] uppercase tracking-[0.16em] text-text-muted">
                     Needs improvement
                   </dt>
                   <dd className="mt-2 font-heading text-xl text-oxblood-muted">
@@ -539,7 +732,7 @@ export default function LandingPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm uppercase tracking-[0.16em] text-text-muted">
+                  <dt className="text-[12px] uppercase tracking-[0.16em] text-text-muted">
                     AI recommendation
                   </dt>
                   <dd className="mt-2 font-heading text-xl text-accent">
@@ -547,14 +740,14 @@ export default function LandingPage() {
                   </dd>
                 </div>
               </dl>
-            </div>
+            </Reveal>
 
             <div className="flex flex-col gap-14 lg:col-span-7 lg:pl-6">
               <div className="flex justify-center lg:justify-start">
-                <ScoreGauge />
+                <ScoreGauge active={scoring.isInView} />
               </div>
               <div className="w-full space-y-7">
-                {DIMENSIONS.map((dim) => (
+                {DIMENSIONS.map((dim, i) => (
                   <div key={dim.label}>
                     <div className="mb-2.5 flex items-baseline justify-between gap-3">
                       <span className="text-base text-ivory">{dim.label}</span>
@@ -570,10 +763,13 @@ export default function LandingPage() {
                     </div>
                     <div className="h-1 overflow-hidden rounded-full bg-background">
                       <div
-                        className={`h-full rounded-full ${
+                        className={`metric-bar h-full rounded-full ${
                           dim.signal === "weak" ? "bg-oxblood-muted" : "bg-accent"
-                        }`}
-                        style={{ width: `${dim.value}%` }}
+                        } ${scoring.isInView || reduced ? "is-visible" : ""}`}
+                        style={{
+                          width: `${dim.value}%`,
+                          transitionDelay: `${i * 130}ms`,
+                        }}
                       />
                     </div>
                   </div>
@@ -590,32 +786,35 @@ export default function LandingPage() {
         className="scroll-mt-24 border-t border-border-subtle"
       >
         <div className="mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
-          <div className="max-w-2xl">
+          <Reveal root={scrollRef} variant="reveal-heading" className="max-w-2xl">
             <SectionLabel index="03">Interview agreement</SectionLabel>
-            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.025em] text-ivory sm:text-5xl">
+            <h2 className="mt-5 font-heading text-[clamp(2.25rem,5vw,3.5rem)] font-semibold tracking-[-0.025em] text-ivory">
               Agreement is the product
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-text-muted">
               When raters align, confidence rises. When they diverge, TriPanel
               turns disagreement into a clear improvement target.
             </p>
-          </div>
-          <div className="mt-14 overflow-hidden rounded-xl ring-1 ring-border-subtle">
-            <AgreementViz />
+          </Reveal>
+          <div
+            ref={agreement.ref}
+            className="mt-14 overflow-hidden rounded-xl ring-1 ring-border-subtle"
+          >
+            <AgreementViz active={agreement.isInView} />
           </div>
         </div>
       </section>
 
       {/* 04 QUESTION BLUEPRINTS */}
       <section className="relative border-t border-border-subtle bg-secondary/40">
-        <div className="pointer-events-none absolute inset-0 bg-grid-faint opacity-50" />
+        <div className="pointer-events-none absolute inset-0 bg-grid-faint opacity-40" />
         <div className="relative mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
-          <div className="max-w-2xl">
+          <Reveal root={scrollRef} variant="reveal-heading" className="max-w-2xl">
             <SectionLabel index="04">Question blueprints</SectionLabel>
-            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.025em] text-ivory sm:text-5xl">
+            <h2 className="mt-5 font-heading text-[clamp(2.25rem,5vw,3.5rem)] font-semibold tracking-[-0.025em] text-ivory">
               Pick a track. Get a real prompt.
             </h2>
-          </div>
+          </Reveal>
 
           <div className="mt-14">
             <div
@@ -630,24 +829,41 @@ export default function LandingPage() {
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    onClick={() => setActiveBlueprint(index)}
-                    className={`relative shrink-0 px-5 py-5 text-left transition-colors duration-200 sm:px-8 ${
-                      active ? "text-ivory" : "text-text-muted hover:text-ivory"
+                    onClick={() => {
+                      setActiveBlueprint(index);
+                      setBlueprintKey((k) => k + 1);
+                    }}
+                    className={`relative shrink-0 px-5 py-5 text-left transition-all duration-300 sm:px-8 ${
+                      active
+                        ? "translate-y-[-1px] text-ivory"
+                        : "text-text-muted hover:text-ivory"
                     }`}
                   >
                     <span className="font-mono text-sm">{item.number}</span>
                     <span className="ml-3 text-base font-medium">
                       {item.label}
                     </span>
-                    {active && (
-                      <span className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />
-                    )}
+                    <span
+                      className={`absolute inset-x-0 bottom-0 h-0.5 origin-left bg-accent transition-transform duration-300 ${
+                        active ? "scale-x-100" : "scale-x-0"
+                      }`}
+                    />
                   </button>
                 );
               })}
             </div>
 
-            <div className="grid grid-cols-1 gap-12 py-12 lg:grid-cols-12 lg:gap-16 lg:py-16">
+            <div
+              key={blueprintKey}
+              className="blueprint-panel grid grid-cols-1 gap-12 py-12 lg:grid-cols-12 lg:gap-16 lg:py-16"
+              style={
+                reduced
+                  ? undefined
+                  : {
+                      animation: "hero-line 0.5s var(--ease-out-soft) both",
+                    }
+              }
+            >
               <div className="lg:col-span-5">
                 <h3 className="font-heading text-3xl font-semibold text-ivory">
                   {blueprint.title}
@@ -680,7 +896,7 @@ export default function LandingPage() {
               </div>
               <div className="lg:col-span-7">
                 <p className="text-sm text-text-muted">Sample question</p>
-                <blockquote className="mt-4 border-l-2 border-accent pl-6 font-heading text-2xl leading-snug tracking-tight text-ivory sm:text-3xl">
+                <blockquote className="mt-4 border-l-2 border-accent pl-6 font-heading text-2xl leading-snug tracking-tight text-ivory sm:text-[1.75rem]">
                   {blueprint.sample}
                 </blockquote>
               </div>
@@ -691,66 +907,92 @@ export default function LandingPage() {
 
       {/* 05 IMPROVEMENT JOURNEY */}
       <section className="border-t border-border-subtle">
-        <div className="mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
-          <div className="max-w-2xl">
+        <div
+          ref={journey.ref}
+          className="mx-auto max-w-[1480px] px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
+        >
+          <Reveal root={scrollRef} variant="reveal-heading" className="max-w-2xl">
             <SectionLabel index="05">Improve with every session</SectionLabel>
-            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.025em] text-ivory sm:text-5xl">
+            <h2 className="mt-5 font-heading text-[clamp(2.25rem,5vw,3.5rem)] font-semibold tracking-[-0.025em] text-ivory">
               Practice → Feedback → Adjustment
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-text-muted">
               Lime tracks measurable gains. Oxblood marks weaknesses that
               shrink across sessions.
             </p>
-          </div>
+          </Reveal>
 
-          <div className="mt-16 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-0">
-            {JOURNEY.map((step, i) => (
-              <div
-                key={step.session}
-                className={`relative ${
-                  i < JOURNEY.length - 1
-                    ? "md:border-r md:border-border-subtle md:pr-10"
-                    : "md:pl-10"
-                } ${i > 0 ? "md:pl-10" : ""}`}
-              >
-                {i < JOURNEY.length - 1 && (
+          <div className="relative mt-16">
+            <div
+              className={`timeline-line absolute left-0 right-0 top-4 hidden h-px bg-border-subtle md:block ${
+                journey.isInView || reduced ? "is-visible" : ""
+              }`}
+              aria-hidden
+            />
+            <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-0">
+              {JOURNEY.map((step, i) => (
+                <Reveal
+                  key={step.session}
+                  root={scrollRef}
+                  delayMs={reduced ? 0 : 180 + i * 160}
+                  className={`relative ${
+                    i < JOURNEY.length - 1
+                      ? "md:border-r md:border-border-subtle md:pr-10"
+                      : "md:pl-10"
+                  } ${i > 0 ? "md:pl-10" : ""}`}
+                >
                   <span
-                    className="absolute right-0 top-3 hidden translate-x-1/2 text-text-muted md:block"
+                    className={`absolute left-0 top-3 hidden h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-accent md:block ${
+                      i === JOURNEY.length - 1 ? "left-10" : ""
+                    }`}
+                    style={{
+                      opacity: journey.isInView || reduced ? 1 : 0,
+                      transition: "opacity 0.5s ease",
+                      transitionDelay: `${220 + i * 160}ms`,
+                    }}
                     aria-hidden
-                  >
-                    →
-                  </span>
-                )}
-                <p className="font-mono text-sm text-text-muted">
-                  Session {step.session}
-                </p>
-                <h3 className="mt-2 font-heading text-2xl font-semibold text-ivory">
-                  {step.label}
-                </h3>
-                <ul className="mt-6 space-y-3">
-                  {Object.entries(step.scores).map(([key, value]) => {
-                    const isWeak =
-                      (step.session === "01" && key === "Structure") ||
-                      (step.session === "04" && key === "Structure" && value < 70);
-                    return (
-                      <li
-                        key={key}
-                        className="flex items-center justify-between text-base"
-                      >
-                        <span className="text-text-muted">{key}</span>
-                        <span
-                          className={`font-mono tabular-nums ${
-                            isWeak ? "text-oxblood-muted" : "text-accent"
-                          }`}
+                  />
+                  {i < JOURNEY.length - 1 && (
+                    <span
+                      className="absolute right-0 top-3 hidden translate-x-1/2 text-text-muted md:block"
+                      aria-hidden
+                    >
+                      →
+                    </span>
+                  )}
+                  <p className="font-mono text-sm text-text-muted">
+                    Session {step.session}
+                  </p>
+                  <h3 className="mt-2 font-heading text-2xl font-semibold text-ivory">
+                    {step.label}
+                  </h3>
+                  <ul className="mt-6 space-y-3">
+                    {Object.entries(step.scores).map(([key, value]) => {
+                      const isWeak =
+                        (step.session === "01" && key === "Structure") ||
+                        (step.session === "04" &&
+                          key === "Structure" &&
+                          value < 70);
+                      return (
+                        <li
+                          key={key}
+                          className="flex items-center justify-between text-base"
                         >
-                          {value}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+                          <span className="text-text-muted">{key}</span>
+                          <span
+                            className={`font-mono tabular-nums ${
+                              isWeak ? "text-oxblood-muted" : "text-accent"
+                            }`}
+                          >
+                            {value}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Reveal>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -768,16 +1010,16 @@ export default function LandingPage() {
             </p>
           </div>
           <nav className="flex flex-wrap gap-8 text-base text-text-muted">
-            <Link href="/practice" className="hover:text-ivory">
+            <Link href="/practice" className="nav-link hover:text-ivory">
               Practice
             </Link>
-            <a href="#interviewers" className="hover:text-ivory">
+            <a href="#interviewers" className="nav-link hover:text-ivory">
               Interviewers
             </a>
-            <a href="#scoring" className="hover:text-ivory">
+            <a href="#scoring" className="nav-link hover:text-ivory">
               Scoring
             </a>
-            <a href="#agreement" className="hover:text-ivory">
+            <a href="#agreement" className="nav-link hover:text-ivory">
               Agreement
             </a>
           </nav>
