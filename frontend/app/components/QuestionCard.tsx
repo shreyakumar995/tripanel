@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getSettings, type TrackOption } from "../lib/settings";
 
 const TRACKS = ["SDE Technical", "GenAI", "HR Behavioral"] as const;
 
@@ -30,6 +31,11 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    const settings = getSettings();
+    setSelectedTrack(settings.defaultTrack as TrackOption);
+  }, []);
+
   async function generateQuestion() {
     setIsGenerating(true);
     setError("");
@@ -54,7 +60,9 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
 
       setQuestion(nextQuestion);
       onQuestionChange(nextQuestion);
-      speakQuestion(nextQuestion);
+      if (getSettings().autoSpeakQuestions) {
+        speakQuestion(nextQuestion);
+      }
     } catch {
       setError("Could not generate a question. Check that the backend is running.");
     } finally {

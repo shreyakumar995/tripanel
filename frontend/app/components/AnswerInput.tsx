@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { getSettings } from "../lib/settings";
 
 type AnswerInputProps = {
   isSubmitting?: boolean;
@@ -28,7 +29,7 @@ export default function AnswerInput({
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = getSettings().voiceRecognitionLanguage;
     let finalTranscript = "";
     recognition.onresult = (event: any) => {
       let interim = "";
