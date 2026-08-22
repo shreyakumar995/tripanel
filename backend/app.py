@@ -86,6 +86,16 @@ def get_sessions():
             ]
         })
      return jsonify(output)
+@app.route("/progress", methods=["GET"])
+def get_progress():
+    sessions = Session.query.order_by(Session.created_at.asc()).all()
+    timeline = []
+    for s in sessions:
+        entry = {"date": s.created_at.isoformat(), "track": s.track}
+        for r in s.results:
+            entry[r.persona_name] = r.score
+        timeline.append(entry)
+    return jsonify(timeline)
 
 
 

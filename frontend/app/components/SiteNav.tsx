@@ -16,6 +16,7 @@ function BrandMark() {
 export default function SiteNav() {
   const pathname = usePathname();
   const onPractice = pathname?.startsWith("/practice");
+  const onProgress = pathname?.startsWith("/progress");
   const onLanding = pathname === "/";
 
   return (
@@ -34,13 +35,13 @@ export default function SiteNav() {
 
         <nav className="hidden items-center gap-11 text-[0.9375rem] text-text-muted md:flex">
           <a
-            href={onPractice ? "/#interviewers" : "#interviewers"}
+            href={onPractice || onProgress ? "/#interviewers" : "#interviewers"}
             className="nav-link transition-colors duration-200 hover:text-ivory"
           >
             Interviewers
           </a>
           <a
-            href={onPractice ? "/#scoring" : "#scoring"}
+            href={onPractice || onProgress ? "/#scoring" : "#scoring"}
             className="nav-link transition-colors duration-200 hover:text-ivory"
           >
             Scoring
@@ -53,9 +54,17 @@ export default function SiteNav() {
           >
             Practice
           </Link>
+          <Link
+            href="/progress"
+            className={`nav-link transition-colors duration-200 hover:text-ivory ${
+              onProgress ? "text-ivory" : ""
+            }`}
+          >
+            Progress
+          </Link>
         </nav>
 
-        {!onPractice ? (
+        {!onPractice && !onProgress ? (
           <Link
             href="/practice"
             className="btn-lime rounded-full px-5 py-2.5 text-sm font-semibold text-background transition-all duration-200 hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(199,244,58,0.14)]"
