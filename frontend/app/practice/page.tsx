@@ -6,6 +6,7 @@ import ConsistencyBadge from "../components/ConsistencyBadge";
 import HistorySidebar, {
   type InterviewSession,
 } from "../components/HistorySidebar";
+import OnboardingTour from "../components/OnboardingTour";
 import QuestionCard from "../components/QuestionCard";
 import ScorePanel, { type ScoreResult } from "../components/ScorePanel";
 import WebcamPreview from "../components/WebcamPreview";
@@ -84,6 +85,7 @@ export default function Home() {
   
   return (
     <div className="flex min-h-0 flex-1 bg-background">
+      <OnboardingTour />
       <HistorySidebar onSelectSession={handleSelectSession} />
       <div className="flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
