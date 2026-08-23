@@ -25,9 +25,38 @@ type QuestionCardProps = {
   onQuestionChange: (question: string) => void;
 };
 
+const DIFFICULTY_BADGE: Record<
+  string,
+  { label: string; className: string }
+> = {
+  beginner: {
+    label: "Beginner",
+    className: "bg-status-green/15 text-status-green",
+  },
+  intermediate: {
+    label: "Intermediate",
+    className: "bg-status-yellow/15 text-status-yellow",
+  },
+  advanced: {
+    label: "Advanced",
+    className: "bg-status-red/15 text-status-red",
+  },
+};
+
+function difficultyBadge(difficulty: string) {
+  const key = difficulty.toLowerCase();
+  return (
+    DIFFICULTY_BADGE[key] ?? {
+      label: difficulty,
+      className: "bg-border-subtle text-text-muted",
+    }
+  );
+}
+
 export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   const [selectedTrack, setSelectedTrack] = useState<Track>("SDE Technical");
   const [question, setQuestion] = useState("");
+  const [difficulty, setDifficulty] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
@@ -39,6 +68,7 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   async function generateQuestion() {
     setIsGenerating(true);
     setError("");
+    setDifficulty("");
 
     try {
       const response = await fetch("http://localhost:5000/question", {
@@ -51,14 +81,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         throw new Error("The question request failed.");
       }
 
-      const data = (await response.json()) as { question?: string };
+      const data = (await response.json()) as {
+        question?: string;
+        difficulty?: string;
+      };
       const nextQuestion = data.question?.trim() ?? "";
+      const nextDifficulty = data.difficulty?.trim() ?? "";
 
       if (!nextQuestion) {
         throw new Error("No question was returned.");
       }
 
       setQuestion(nextQuestion);
+      setDifficulty(nextDifficulty);
       onQuestionChange(nextQuestion);
       if (getSettings().autoSpeakQuestions) {
         speakQuestion(nextQuestion);
@@ -69,6 +104,8 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
       setIsGenerating(false);
     }
   }
+
+  const badge = difficulty ? difficultyBadge(difficulty) : null;
 
   return (
     <section className="rounded-xl border border-border-subtle bg-surface p-6 sm:p-7">
@@ -114,8 +151,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-accent" />
             Generating question...
           </span>
+        ) : question ? (
+          <div className="flex flex-wrap items-start gap-2">
+            {badge && (
+              <span
+                className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
+              >
+                {badge.label}
+              </span>
+            )}
+            <p className="min-w-0 flex-1 text-ivory">{question}</p>
+          </div>
         ) : (
-          question || "Click Generate Question to start"
+          "Click Generate Question to start"
         )}
       </div>
 
