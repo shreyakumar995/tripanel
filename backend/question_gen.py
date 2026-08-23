@@ -24,9 +24,23 @@ def get_difficulty_level(track:str)->str:
         return"intermediate"
     else:
         return"advanced"
-def generate_question(track:str)->dict:
+def generate_question(track:str,jd_text:str=None)->dict:
+
     difficulty=get_difficulty_level(track)
     prompt=get_prompt(track,difficulty)
+    if jd_text and jd_text.strip():
+         prompt = f"""{prompt}
+Additionally, tailor this question to be relevant to the following job
+description, focusing on skills or requirements it specifically mentions:
+
+---
+{jd_text.strip()[:2000]}
+---
+
+The question should still be a single interview question, not a
+restatement of the job description."""
+    else:
+        prompt = prompt 
     response=client.chat.completions.create(
         model="openai/gpt-oss-120b",
         messages=[

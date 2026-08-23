@@ -57,6 +57,8 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   const [selectedTrack, setSelectedTrack] = useState<Track>("SDE Technical");
   const [question, setQuestion] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [jdText, setJdText] = useState("");
+  const [isJdOpen, setIsJdOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
@@ -71,10 +73,18 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
     setDifficulty("");
 
     try {
+      const body: { track: string; jd_text?: string } = {
+        track: TRACK_KEYS[selectedTrack],
+      };
+      const trimmedJd = jdText.trim();
+      if (trimmedJd) {
+        body.jd_text = trimmedJd;
+      }
+
       const response = await fetch("http://localhost:5000/question", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ track: TRACK_KEYS[selectedTrack] }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -130,6 +140,36 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
             </button>
           );
         })}
+      </div>
+
+      <div className="mt-4 rounded-lg border border-border-subtle bg-background">
+        <button
+          type="button"
+          onClick={() => setIsJdOpen((open) => !open)}
+          aria-expanded={isJdOpen}
+          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm text-text-muted transition-colors hover:text-ivory"
+        >
+          <span>Tailor to a job description (optional)</span>
+          <span
+            className={`shrink-0 text-xs transition-transform ${
+              isJdOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          >
+            ▼
+          </span>
+        </button>
+        {isJdOpen && (
+          <div className="border-t border-border-subtle px-4 pb-4 pt-3">
+            <textarea
+              value={jdText}
+              onChange={(event) => setJdText(event.target.value)}
+              placeholder="Paste a job description to tailor generated questions..."
+              rows={5}
+              className="w-full resize-y rounded-lg border border-border-subtle bg-surface px-3 py-2.5 text-sm leading-relaxed text-ivory placeholder:text-text-muted outline-none transition-colors focus:border-accent/40"
+            />
+          </div>
+        )}
       </div>
 
       <button

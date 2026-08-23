@@ -68,7 +68,8 @@ def evaluate():
 def question():
     data=request.json
     track=data.get("track","sde_technical")
-    result=generate_question(track)
+    jd_text=data.get("jd_text")
+    result=generate_question(track,jd_text)
     return jsonify(result)
 @app.route("/sessions",methods=["GET"])
 def get_sessions():
