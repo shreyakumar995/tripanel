@@ -5,9 +5,13 @@ import { usePrefersReducedMotion } from "../hooks/useMotion";
 
 type ScrollProgressProps = {
   scrollRef: RefObject<HTMLElement | null>;
+  barClassName?: string;
 };
 
-export default function ScrollProgress({ scrollRef }: ScrollProgressProps) {
+export default function ScrollProgress({
+  scrollRef,
+  barClassName = "bg-accent/80",
+}: ScrollProgressProps) {
   const [progress, setProgress] = useState(0);
   const reduced = usePrefersReducedMotion();
 
@@ -34,7 +38,7 @@ export default function ScrollProgress({ scrollRef }: ScrollProgressProps) {
       aria-hidden
     >
       <div
-        className="h-full origin-left bg-accent/80 transition-[width] duration-100 ease-out"
+        className={`h-full origin-left transition-[width] duration-100 ease-out ${barClassName}`}
         style={{ width: `${progress * 100}%` }}
       />
     </div>
