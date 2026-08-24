@@ -27,8 +27,7 @@ const PANEL = [
     name: "Strict Technical Reviewer",
     evaluates: ["Technical depth", "Problem solving", "Code quality"],
     initial: "R",
-    image:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80&auto=format&fit=crop",
+    image: "/images/interviewers/technical.jpg",
     tint: "from-[#EDF8E8] to-[#F8FAF5]",
     accent: "text-[#48B536]",
     avatar: "bg-[#72D13D]/15 text-[#48B536]",
@@ -40,8 +39,7 @@ const PANEL = [
     name: "Friendly HR Interviewer",
     evaluates: ["Communication", "Confidence", "Decision making"],
     initial: "P",
-    image:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a178?w=800&q=80&auto=format&fit=crop",
+    image: "/images/interviewers/behavioral.jpg",
     tint: "from-[#F1F7ED] to-[#F8FAF5]",
     accent: "text-[#172018]",
     avatar: "bg-[#172018]/8 text-[#172018]",
@@ -53,8 +51,7 @@ const PANEL = [
     name: "System Design Skeptic",
     evaluates: ["Architecture", "Scalability", "Tradeoffs"],
     initial: "A",
-    image:
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&q=80&auto=format&fit=crop",
+    image: "/images/interviewers/system.jpg",
     tint: "from-[#F1F7ED] to-[#EDF8E8]",
     accent: "text-[#667066]",
     avatar: "bg-[#667066]/12 text-[#667066]",

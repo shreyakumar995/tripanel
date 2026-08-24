@@ -1,0 +1,110 @@
+/* Practice studio workspace */
+
+.practice-workspace {
+  --pw-bg: #f7faf5;
+  --pw-surface: #ffffff;
+  --pw-soft: #f0f6ec;
+  --pw-green: #72d13d;
+  --pw-green-dark: #4fb832;
+  --pw-text: #172018;
+  --pw-muted: #687268;
+  --pw-border: #dce5d8;
+  --pw-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background: var(--pw-bg);
+  color: var(--pw-text);
+}
+
+.practice-workspace-bg {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(114, 209, 61, 0.06), transparent 55%),
+    var(--pw-bg);
+}
+
+.practice-grid-faint {
+  background-image: radial-gradient(circle, rgba(104, 114, 104, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.practice-panel {
+  background: var(--pw-surface);
+  border: 1px solid var(--pw-border);
+  border-radius: 14px;
+}
+
+.practice-history-item {
+  position: relative;
+  border-left: 3px solid transparent;
+  transition:
+    background 0.2s var(--pw-ease),
+    border-color 0.2s var(--pw-ease);
+}
+
+.practice-history-item:hover {
+  background: var(--pw-soft);
+}
+
+.practice-history-item.is-selected {
+  background: #edf8e8;
+  border-left-color: var(--pw-green);
+}
+
+.practice-question-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+
+.practice-state-enter {
+  animation: practice-fade-up 0.45s var(--pw-ease) both;
+}
+
+@keyframes practice-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes practice-wave {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.practice-recording-bar {
+  animation: practice-wave 0.75s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.practice-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--pw-border);
+}
+
+.practice-progress-dot.is-done {
+  background: var(--pw-green);
+}
+
+.practice-progress-dot.is-current {
+  background: var(--pw-green);
+  box-shadow: 0 0 0 3px rgba(114, 209, 61, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-state-enter,
+  .practice-recording-bar {
+    animation: none !important;
+  }
+}

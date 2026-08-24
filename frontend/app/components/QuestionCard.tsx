@@ -25,22 +25,10 @@ type QuestionCardProps = {
   onQuestionChange: (question: string) => void;
 };
 
-const DIFFICULTY_BADGE: Record<
-  string,
-  { label: string; className: string }
-> = {
-  beginner: {
-    label: "Beginner",
-    className: "bg-status-green/15 text-status-green",
-  },
-  intermediate: {
-    label: "Intermediate",
-    className: "bg-status-yellow/15 text-status-yellow",
-  },
-  advanced: {
-    label: "Advanced",
-    className: "bg-status-red/15 text-status-red",
-  },
+const DIFFICULTY_BADGE: Record<string, { label: string; className: string }> = {
+  beginner: { label: "Beginner", className: "studio-chip-beginner" },
+  intermediate: { label: "Intermediate", className: "studio-chip-intermediate" },
+  advanced: { label: "Advanced", className: "studio-chip-advanced" },
 };
 
 function difficultyBadge(difficulty: string) {
@@ -48,7 +36,7 @@ function difficultyBadge(difficulty: string) {
   return (
     DIFFICULTY_BADGE[key] ?? {
       label: difficulty,
-      className: "bg-border-subtle text-text-muted",
+      className: "bg-[#F1F7ED] text-[#667066]",
     }
   );
 }
@@ -118,10 +106,9 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
   const badge = difficulty ? difficultyBadge(difficulty) : null;
 
   return (
-    <section className="rounded-xl border border-border-subtle bg-surface p-6 sm:p-7">
-      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-muted">
-        Question
-      </p>
+    <section className="landing-card p-6 sm:p-7">
+      <p className="studio-label">Question</p>
+
       <div className="mt-4 flex flex-wrap gap-2">
         {TRACKS.map((option) => {
           const isActive = selectedTrack === option;
@@ -130,10 +117,8 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
               key={option}
               type="button"
               onClick={() => setSelectedTrack(option)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "btn-lime text-background"
-                  : "bg-background text-text-muted hover:text-ivory"
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive ? "studio-track-active" : "studio-track-inactive"
               }`}
             >
               {option}
@@ -142,12 +127,12 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         })}
       </div>
 
-      <div className="mt-4 rounded-lg border border-border-subtle bg-background">
+      <div className="mt-4 overflow-hidden rounded-xl border border-[#DCE4D8] bg-[#F8FAF5]">
         <button
           type="button"
           onClick={() => setIsJdOpen((open) => !open)}
           aria-expanded={isJdOpen}
-          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm text-text-muted transition-colors hover:text-ivory"
+          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm text-[#667066] transition-colors hover:text-[#172018]"
         >
           <span>Tailor to a job description (optional)</span>
           <span
@@ -160,13 +145,13 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
           </span>
         </button>
         {isJdOpen && (
-          <div className="border-t border-border-subtle px-4 pb-4 pt-3">
+          <div className="border-t border-[#DCE4D8] bg-white px-4 pb-4 pt-3">
             <textarea
               value={jdText}
               onChange={(event) => setJdText(event.target.value)}
               placeholder="Paste a job description to tailor generated questions..."
               rows={5}
-              className="w-full resize-y rounded-lg border border-border-subtle bg-surface px-3 py-2.5 text-sm leading-relaxed text-ivory placeholder:text-text-muted outline-none transition-colors focus:border-accent/40"
+              className="studio-input w-full resize-y px-3 py-2.5 text-sm leading-relaxed"
             />
           </div>
         )}
@@ -176,19 +161,19 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
         type="button"
         onClick={generateQuestion}
         disabled={isGenerating}
-        className="btn-lime mt-5 rounded-md px-4 py-2 text-sm font-semibold text-background transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:bg-border-subtle disabled:text-text-muted disabled:bg-none"
+        className="landing-btn-primary mt-5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isGenerating ? "Generating..." : "Generate Question"}
       </button>
 
       <div
-        className={`mt-5 min-h-28 rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm leading-relaxed sm:text-base ${
-          question ? "text-ivory" : "text-text-muted"
+        className={`mt-5 min-h-28 rounded-xl border border-[#DCE4D8] bg-[#F8FAF5] px-4 py-3 text-sm leading-relaxed sm:text-base ${
+          question ? "text-[#172018]" : "text-[#667066]"
         }`}
       >
         {isGenerating ? (
-          <span className="inline-flex items-center gap-2 text-text-muted">
-            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border-subtle border-t-accent" />
+          <span className="inline-flex items-center gap-2 text-[#667066]">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#DCE4D8] border-t-[#72D13D]" />
             Generating question...
           </span>
         ) : question ? (
@@ -200,14 +185,14 @@ export default function QuestionCard({ onQuestionChange }: QuestionCardProps) {
                 {badge.label}
               </span>
             )}
-            <p className="min-w-0 flex-1 text-ivory">{question}</p>
+            <p className="min-w-0 flex-1">{question}</p>
           </div>
         ) : (
           "Click Generate Question to start"
         )}
       </div>
 
-      {error && <p className="mt-3 text-sm text-status-red">{error}</p>}
+      {error && <p className="mt-3 text-sm text-[#B84A5A]">{error}</p>}
     </section>
   );
 }

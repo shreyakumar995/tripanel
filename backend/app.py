@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
-from groq_client import call_persona
+from groq_client import call_persona, groq_error_message
 from personas import PERSONAS
 from question_gen import generate_question
 from models import db,Session,PersonaResult
@@ -69,8 +69,12 @@ def question():
     data=request.json
     track=data.get("track","sde_technical")
     jd_text=data.get("jd_text")
-    result=generate_question(track,jd_text)
-    return jsonify(result)
+    try:
+        result=generate_question(track,jd_text)
+        return jsonify(result)
+    except Exception as exc:
+        message, status=groq_error_message(exc)
+        return jsonify({"error": message}), status
 @app.route("/sessions",methods=["GET"])
 def get_sessions():
      sessions = Session.query.order_by(Session.created_at.desc()).all()

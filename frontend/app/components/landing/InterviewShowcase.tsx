@@ -36,7 +36,7 @@ export default function InterviewShowcase() {
         <div className="relative lg:col-span-7">
           <div className="relative aspect-[16/11] bg-[#F1F7ED]">
             <Image
-              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1000&q=80&auto=format&fit=crop"
+              src="/images/interviewers/showcase.jpg"
               alt="Candidate participating in a professional video interview"
               fill
               className="object-cover"
@@ -59,7 +59,7 @@ export default function InterviewShowcase() {
           <div className="relative flex flex-1 items-center justify-center bg-[#F8FAF5] px-6 py-10">
             <div className="relative h-20 w-20 overflow-hidden rounded-full ring-2 ring-white shadow-md">
               <Image
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&auto=format&fit=crop"
+                src="/images/interviewers/you.jpg"
                 alt="Your camera feed"
                 fill
                 className="object-cover"

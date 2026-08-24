@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex h-full flex-col bg-background font-sans text-text-primary">
+      <body className="flex h-full flex-col bg-[#F8FAF5] font-sans text-[#172018]">
         <SiteNav />
         <main className="flex min-h-0 flex-1 flex-col">{children}</main>
       </body>

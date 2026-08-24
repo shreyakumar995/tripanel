@@ -78,25 +78,25 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
   }, []);
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-r border-border-subtle bg-surface">
-      <div className="border-b border-border-subtle px-5 py-4">
-        <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-text-muted">
-          Sessions
-        </p>
-        <h2 className="mt-1 font-heading text-sm font-semibold tracking-tight text-ivory">
+    <aside className="flex w-72 shrink-0 flex-col border-r border-[#DCE4D8] bg-white">
+      <div className="border-b border-[#DCE4D8] px-5 py-4">
+        <p className="studio-label">Sessions</p>
+        <h2 className="font-display mt-1 text-sm font-semibold tracking-tight text-[#172018]">
           History
         </h2>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading && (
-          <p className="px-2 py-3 text-sm text-text-muted">Loading history...</p>
+          <p className="px-2 py-3 text-sm text-[#667066]">Loading history...</p>
         )}
 
-        {error && <p className="px-2 py-3 text-sm text-status-red">{error}</p>}
+        {error && (
+          <p className="px-2 py-3 text-sm text-[#B84A5A]">{error}</p>
+        )}
 
         {!isLoading && !error && sessions.length === 0 && (
-          <p className="px-4 py-12 text-center text-sm leading-relaxed text-text-muted">
+          <p className="px-4 py-12 text-center text-sm leading-relaxed text-[#667066]">
             No practice sessions yet — generate a question and submit an answer
             to get started.
           </p>
@@ -115,21 +115,21 @@ export default function HistorySidebar({ onSelectSession }: HistorySidebarProps)
                     setSelectedId(session.id);
                     onSelectSession(session);
                   }}
-                  className={`w-full rounded-md px-3 py-2.5 text-left transition-colors ${
+                  className={`w-full rounded-lg px-3 py-2.5 text-left transition-all ${
                     isSelected
-                      ? "bg-background text-ivory ring-1 ring-accent/30"
-                      : "text-ivory hover:bg-background/70"
+                      ? "studio-sidebar-selected shadow-sm"
+                      : "text-[#172018] hover:bg-[#F8FAF5]"
                   }`}
                 >
-                  <p className="text-xs font-medium text-ivory">
+                  <p className="text-xs font-medium text-[#172018]">
                     {trackLabel(session.track)}
                   </p>
-                  <p className="mt-1 text-sm leading-snug text-text-muted">
+                  <p className="mt-1 text-sm leading-snug text-[#667066]">
                     {truncate(session.question)}
                   </p>
-                  <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
+                  <div className="mt-2 flex items-center justify-between text-xs text-[#667066]">
                     <span>{formatDate(session.created_at)}</span>
-                    <span className="font-mono tabular-nums text-accent">
+                    <span className="font-mono tabular-nums font-medium text-[#48B536]">
                       {avg === null ? "—" : `${avg.toFixed(1)} avg`}
                     </span>
                   </div>

@@ -125,7 +125,7 @@ export default function HeroVisual({ active }: { active: boolean }) {
 
         <div className="relative aspect-[16/10] bg-[#F1F7ED]">
           <Image
-            src="https://images.unsplash.com/photo-1573497019940-598903f87561?w=1200&q=80&auto=format&fit=crop"
+            src="/images/interviewers/hero.jpg"
             alt="Professional interviewer in a video call setting"
             fill
             className="object-cover object-top"

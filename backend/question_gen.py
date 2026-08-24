@@ -1,4 +1,4 @@
-from groq_client import client
+from groq_client import _chat_with_retry
 from models import Session
 import json
 
@@ -41,7 +41,7 @@ The question should still be a single interview question, not a
 restatement of the job description."""
     else:
         prompt = prompt 
-    response=client.chat.completions.create(
+    response = _chat_with_retry(
         model="openai/gpt-oss-120b",
         messages=[
             {"role":"system","content":"You are an interview question generator. respond with only the question text, nothing else - no numbering, no extra commentary."},
@@ -49,7 +49,10 @@ restatement of the job description."""
         ],
         temperature=0.8,
     )
+    content = (response.choices[0].message.content or "").strip()
+    if not content:
+        raise RuntimeError("Groq returned an empty question. Please try again.")
     return {
-        "question": response.choices[0].message.content.strip(),
+        "question": content,
         "difficulty": difficulty,
     }

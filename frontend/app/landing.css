@@ -1,6 +1,7 @@
-/* TriPanel landing page — light editorial system */
+/* TriPanel light design system — landing + practice studio */
 
-.landing-page {
+.landing-page,
+.app-shell {
   --lp-bg: #f8faf5;
   --lp-bg-secondary: #f1f7ed;
   --lp-green-soft: #e1f3d6;
@@ -21,8 +22,77 @@
   color: var(--lp-text);
 }
 
-.landing-page .font-display {
+.landing-page .font-display,
+.app-shell .font-display {
   font-family: var(--font-display);
+}
+
+.studio-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lp-text-secondary);
+}
+
+.studio-input {
+  border: 1px solid var(--lp-border);
+  background: var(--lp-white);
+  color: var(--lp-text);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.studio-input:focus {
+  border-color: rgba(114, 209, 61, 0.55);
+  box-shadow: 0 0 0 3px rgba(114, 209, 61, 0.12);
+}
+
+.studio-input::placeholder {
+  color: var(--lp-text-secondary);
+}
+
+.studio-track-active {
+  background: var(--lp-green);
+  color: var(--lp-white);
+}
+
+.studio-track-inactive {
+  background: var(--lp-bg-secondary);
+  color: var(--lp-text-secondary);
+}
+
+.studio-track-inactive:hover {
+  color: var(--lp-text);
+  background: var(--lp-green-subtle);
+}
+
+.studio-chip-beginner {
+  background: var(--lp-green-soft);
+  color: var(--lp-green-dark);
+}
+
+.studio-chip-intermediate {
+  background: #f1f7ed;
+  color: #667066;
+}
+
+.studio-chip-advanced {
+  background: #fce8eb;
+  color: #b84a5a;
+}
+
+.studio-error {
+  border: 1px solid rgba(184, 74, 90, 0.25);
+  background: #fce8eb;
+  color: #b84a5a;
+}
+
+.studio-sidebar-selected {
+  background: var(--lp-green-subtle);
+  border: 1px solid rgba(114, 209, 61, 0.25);
+  color: var(--lp-text);
 }
 
 .landing-eyebrow {

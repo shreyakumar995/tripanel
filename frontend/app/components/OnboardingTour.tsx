@@ -10,21 +10,21 @@ const PERSONAS = [
     initial: "R",
     description:
       "Grades correctness, edge cases, and complexity — no fluff, no hand-holding.",
-    avatarClass: "bg-accent/15 text-accent",
+    avatarClass: "bg-[#72D13D]/15 text-[#48B536]",
   },
   {
     name: "Friendly HR",
     initial: "P",
     description:
       "Focuses on clarity, structure, and how confidently you communicate your thinking.",
-    avatarClass: "bg-ivory/10 text-ivory",
+    avatarClass: "bg-[#172018]/8 text-[#172018]",
   },
   {
     name: "System Design Skeptic",
     initial: "A",
     description:
       "Probes assumptions, scale, failure modes, and tradeoffs — always asks \"at scale?\"",
-    avatarClass: "bg-text-muted/15 text-text-muted",
+    avatarClass: "bg-[#667066]/12 text-[#667066]",
   },
 ] as const;
 
@@ -107,22 +107,19 @@ export default function OnboardingTour() {
       <button
         type="button"
         aria-label="Close onboarding"
-        className="absolute inset-0 bg-[#0b0d0e]/75 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-[#172018]/40 backdrop-blur-[2px]"
         onClick={closeTour}
       />
 
-      <div
-        className="relative w-full max-w-lg rounded-xl border border-[#2a3038] p-6 shadow-2xl sm:p-8"
-        style={{ background: "#1B1E29", color: "#EDEDF2" }}
-      >
+      <div className="landing-card relative w-full max-w-lg p-6 shadow-2xl sm:p-8">
         <div className="flex items-start justify-between gap-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#92969b]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#667066]">
             Step {step + 1} of {STEPS.length}
           </p>
           <button
             type="button"
             onClick={closeTour}
-            className="shrink-0 text-sm text-[#92969b] transition-colors hover:text-[#EDEDF2]"
+            className="shrink-0 text-sm text-[#667066] transition-colors hover:text-[#172018]"
           >
             Skip
           </button>
@@ -133,7 +130,7 @@ export default function OnboardingTour() {
             <span
               key={index}
               className={`h-1 flex-1 rounded-full transition-colors ${
-                index <= step ? "bg-accent" : "bg-[#2a3038]"
+                index <= step ? "bg-[#72D13D]" : "bg-[#DCE4D8]"
               }`}
             />
           ))}
@@ -141,13 +138,13 @@ export default function OnboardingTour() {
 
         <h2
           id="onboarding-title"
-          className="font-heading mt-6 text-2xl font-semibold tracking-tight"
+          className="font-display mt-6 text-2xl font-semibold tracking-tight text-[#172018]"
         >
           {current.title}
         </h2>
 
         {current.body && (
-          <p className="mt-3 text-sm leading-relaxed text-[#92969b] sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-[#667066] sm:text-base">
             {current.body}
           </p>
         )}
@@ -157,15 +154,15 @@ export default function OnboardingTour() {
             {PERSONAS.map((persona) => (
               <li key={persona.name} className="flex gap-3">
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-heading text-sm font-semibold ${persona.avatarClass}`}
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-semibold ${persona.avatarClass}`}
                 >
                   {persona.initial}
                 </span>
                 <div>
-                  <p className="font-heading text-sm font-semibold text-[#EDEDF2]">
+                  <p className="font-display text-sm font-semibold text-[#172018]">
                     {persona.name}
                   </p>
-                  <p className="mt-0.5 text-sm leading-relaxed text-[#92969b]">
+                  <p className="mt-0.5 text-sm leading-relaxed text-[#667066]">
                     {persona.description}
                   </p>
                 </div>
@@ -177,17 +174,17 @@ export default function OnboardingTour() {
         {step === 2 && (
           <div className="mt-5 space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex rounded-full bg-accent/12 px-3 py-1.5 text-xs font-medium text-accent">
+              <span className="inline-flex rounded-full bg-[#E1F3D6] px-3 py-1.5 text-xs font-medium text-[#48B536]">
                 High Agreement
               </span>
-              <span className="inline-flex rounded-full bg-ivory/8 px-3 py-1.5 text-xs font-medium text-ivory">
+              <span className="inline-flex rounded-full bg-[#F1F7ED] px-3 py-1.5 text-xs font-medium text-[#667066]">
                 Mixed Signal
               </span>
-              <span className="inline-flex rounded-full bg-oxblood/20 px-3 py-1.5 text-xs font-medium text-oxblood-muted">
+              <span className="inline-flex rounded-full bg-[#FCE8EB] px-3 py-1.5 text-xs font-medium text-[#B84A5A]">
                 Low Agreement — Investigate
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-[#92969b]">
+            <p className="text-sm leading-relaxed text-[#667066]">
               A wide spread between scores means your answer landed differently
               with each interviewer — worth digging into before your real interview.
             </p>
@@ -199,7 +196,7 @@ export default function OnboardingTour() {
             type="button"
             onClick={goBack}
             disabled={step === 0}
-            className="rounded-md px-4 py-2 text-sm font-medium text-[#92969b] transition-colors hover:text-[#EDEDF2] disabled:invisible"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-[#667066] transition-colors hover:text-[#172018] disabled:invisible"
           >
             Back
           </button>
@@ -208,7 +205,7 @@ export default function OnboardingTour() {
             <button
               type="button"
               onClick={closeTour}
-              className="btn-lime rounded-md px-5 py-2 text-sm font-semibold text-background transition-all hover:-translate-y-px"
+              className="landing-btn-primary text-sm"
             >
               Start Practicing
             </button>
@@ -216,7 +213,7 @@ export default function OnboardingTour() {
             <button
               type="button"
               onClick={goNext}
-              className="btn-lime rounded-md px-5 py-2 text-sm font-semibold text-background transition-all hover:-translate-y-px"
+              className="landing-btn-primary text-sm"
             >
               Next
             </button>
