@@ -124,7 +124,7 @@ export default function PracticePage() {
       const trimmedJd = jdText.trim();
       if (trimmedJd) body.jd_text = trimmedJd;
 
-      const response = await fetch("http://localhost:5000/question", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/question`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -191,7 +191,7 @@ export default function PracticePage() {
     setSubmitError("");
 
     try {
-      const response = await fetch("http://localhost:5000/evaluate", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/evaluate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question, answer }),

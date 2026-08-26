@@ -61,7 +61,7 @@ export default function SessionHistory({
   useEffect(() => {
     async function loadSessions() {
       try {
-        const response = await fetch("http://localhost:5000/sessions");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sessions`);
         if (!response.ok) throw new Error("The sessions request failed.");
         const data = (await response.json()) as InterviewSession[];
         setSessions(Array.isArray(data) ? data : []);

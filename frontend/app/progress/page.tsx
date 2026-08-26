@@ -57,7 +57,7 @@ export default function ProgressPage() {
   useEffect(() => {
     async function loadProgress() {
       try {
-        const response = await fetch("http://localhost:5000/progress");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/progress`);
         if (!response.ok) {
           throw new Error("Failed to load progress.");
         }
