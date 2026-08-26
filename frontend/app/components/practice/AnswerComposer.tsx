@@ -36,6 +36,8 @@ export default function AnswerComposer({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const keepListeningRef = useRef(false);
+  const finalTranscriptRef = useRef("");
   const [levels, setLevels] = useState<number[]>(() =>
     Array.from({ length: WAVE_COUNT }, () => 0.15),
   );
@@ -57,10 +59,70 @@ export default function AnswerComposer({
 
   useEffect(() => {
     return () => {
+      keepListeningRef.current = false;
       recognitionRef.current?.stop();
       cleanupAudio();
     };
   }, []);
+
+  function attachRecognitionHandlers(recognition: any) {
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscriptRef.current += transcript + " ";
+        } else {
+          interim += transcript;
+        }
+      }
+      onAnswerChange(finalTranscriptRef.current + interim);
+    };
+
+    recognition.onerror = (event: any) => {
+      // Browser often fires "no-speech" after a pause — keep going.
+      if (event?.error === "no-speech" || event?.error === "aborted") {
+        return;
+      }
+      if (event?.error === "not-allowed") {
+        keepListeningRef.current = false;
+        cleanupAudio();
+        onListeningChange(false);
+        setMicError("Microphone permission blocked. Allow mic access and try again.");
+        return;
+      }
+      // network / service-not-allowed etc. — stop cleanly
+      keepListeningRef.current = false;
+      cleanupAudio();
+      onListeningChange(false);
+      setMicError("Voice recognition stopped. Tap the mic to continue.");
+    };
+
+    recognition.onend = () => {
+      // Chrome ends recognition after silence even with continuous=true.
+      // Restart until the user explicitly finishes.
+      if (keepListeningRef.current) {
+        try {
+          recognition.start();
+        } catch {
+          // Already started or briefly unavailable — retry once.
+          window.setTimeout(() => {
+            if (!keepListeningRef.current) return;
+            try {
+              recognition.start();
+            } catch {
+              keepListeningRef.current = false;
+              cleanupAudio();
+              onListeningChange(false);
+            }
+          }, 200);
+        }
+        return;
+      }
+      cleanupAudio();
+      onListeningChange(false);
+    };
+  }
 
   async function startListening() {
     setMicError("");
@@ -124,32 +186,14 @@ export default function AnswerComposer({
       return;
     }
 
+    finalTranscriptRef.current = answer.trim() ? `${answer.trim()} ` : "";
+    keepListeningRef.current = true;
+
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = getSettings().voiceRecognitionLanguage;
-    let finalTranscript = answer;
-
-    recognition.onresult = (event: any) => {
-      let interim = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + " ";
-        } else {
-          interim += transcript;
-        }
-      }
-      onAnswerChange(finalTranscript + interim);
-    };
-    recognition.onerror = () => {
-      cleanupAudio();
-      onListeningChange(false);
-    };
-    recognition.onend = () => {
-      cleanupAudio();
-      onListeningChange(false);
-    };
+    attachRecognitionHandlers(recognition);
 
     recognition.start();
     recognitionRef.current = recognition;
@@ -158,6 +202,7 @@ export default function AnswerComposer({
   }
 
   function stopListening() {
+    keepListeningRef.current = false;
     recognitionRef.current?.stop();
     cleanupAudio();
     onListeningChange(false);
