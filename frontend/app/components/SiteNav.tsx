@@ -44,11 +44,13 @@ function NavLink({
 
 export default function SiteNav() {
   const pathname = usePathname();
+  const onDashboard = pathname?.startsWith("/dashboard");
   const onPractice = pathname?.startsWith("/practice");
+  const onInterview = pathname?.startsWith("/interview");
   const onProgress = pathname?.startsWith("/progress");
+  const onTailor = pathname?.startsWith("/tailor");
   const onSettings = pathname?.startsWith("/settings");
   const onLanding = pathname === "/";
-  const onAppPage = onPractice || onProgress || onSettings;
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -84,13 +86,20 @@ export default function SiteNav() {
             </>
           ) : (
             <>
-              <NavLink href="/#interviewers">Interviewers</NavLink>
-              <NavLink href="/#scoring">Scoring</NavLink>
+              <NavLink href="/dashboard" active={onDashboard}>
+                Dashboard
+              </NavLink>
               <NavLink href="/practice" active={onPractice}>
                 Practice
               </NavLink>
+              <NavLink href="/interview" active={onInterview}>
+                Interview Round
+              </NavLink>
               <NavLink href="/progress" active={onProgress}>
                 Progress
+              </NavLink>
+              <NavLink href="/tailor" active={onTailor}>
+                Tailor
               </NavLink>
               <NavLink href="/settings" active={onSettings}>
                 Settings
