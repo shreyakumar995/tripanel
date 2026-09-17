@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AnswerInput from "../components/AnswerInput";
 import OnboardingTour from "../components/OnboardingTour";
 import StageIndicator, { type Stage } from "../components/StageIndicator";
 import AnswerComposer from "../components/practice/AnswerComposer";
@@ -28,6 +29,17 @@ type EvaluateResponse = Record<
     failed?: boolean;
   }
 >;
+
+type FollowupData = {
+  followup_question: string;
+  asked_by: string;
+};
+
+const PERSONA_ACCENT: Record<string, string> = {
+  "Strict Technical Reviewer": "#72D13D",
+  "Friendly HR Interviewer": "#172018",
+  "System Design Skeptic": "#667066",
+};
 
 function speakQuestion(text: string) {
   window.speechSynthesis.cancel();
@@ -62,6 +74,11 @@ export default function PracticePage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [results, setResults] = useState<ScoreResult[] | null>(null);
   const [submitError, setSubmitError] = useState("");
+
+  const [followup, setFollowup] = useState<FollowupData | null>(null);
+  const [isFollowupLoading, setIsFollowupLoading] = useState(false);
+  const [followupError, setFollowupError] = useState("");
+  const [followupAnswer, setFollowupAnswer] = useState<string | null>(null);
 
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraError, setCameraError] = useState("");
@@ -115,6 +132,10 @@ export default function PracticePage() {
     setIsSubmitted(false);
     setResults(null);
     setSubmitError("");
+    setFollowup(null);
+    setIsFollowupLoading(false);
+    setFollowupError("");
+    setFollowupAnswer(null);
     setStage("idle");
 
     try {
@@ -189,6 +210,10 @@ export default function PracticePage() {
     setIsSubmitting(true);
     setStage("reviewing");
     setSubmitError("");
+    setFollowup(null);
+    setIsFollowupLoading(false);
+    setFollowupError("");
+    setFollowupAnswer(null);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/evaluate`, {
@@ -205,6 +230,38 @@ export default function PracticePage() {
       setStage("feedback_ready");
       setTimerActive(false);
       setRefreshKey((k) => k + 1);
+
+      setIsFollowupLoading(true);
+      try {
+        const followupResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/followup`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question, answer, results: data }),
+          },
+        );
+
+        if (!followupResponse.ok) {
+          throw new Error("The follow-up request failed.");
+        }
+
+        const followupData = (await followupResponse.json()) as FollowupData;
+        if (!followupData.followup_question?.trim()) {
+          throw new Error("No follow-up question was returned.");
+        }
+
+        setFollowup({
+          followup_question: followupData.followup_question.trim(),
+          asked_by: followupData.asked_by?.trim() || "Interviewer",
+        });
+      } catch {
+        setFollowupError(
+          "Could not generate a follow-up question. You can still continue.",
+        );
+      } finally {
+        setIsFollowupLoading(false);
+      }
     } catch {
       setSubmitError("Could not evaluate the answer. Check that the backend is running.");
       setResults(null);
@@ -232,6 +289,10 @@ export default function PracticePage() {
     setIsSubmitted(true);
     setStage("feedback_ready");
     setSubmitError("");
+    setFollowup(null);
+    setIsFollowupLoading(false);
+    setFollowupError("");
+    setFollowupAnswer(null);
     setSetupCollapsed(true);
     setTimerActive(false);
   }
@@ -243,11 +304,24 @@ export default function PracticePage() {
     setAnswer("");
     setQuestion("");
     setDifficulty("");
+    setFollowup(null);
+    setIsFollowupLoading(false);
+    setFollowupError("");
+    setFollowupAnswer(null);
     setSelectedSessionId(null);
     setSetupCollapsed(false);
     setStage("idle");
     void generateQuestion();
   }
+
+  function handleFollowupSubmit(nextAnswer: string) {
+    setFollowupAnswer(nextAnswer.trim());
+  }
+
+  const followupAccent =
+    followup && PERSONA_ACCENT[followup.asked_by]
+      ? PERSONA_ACCENT[followup.asked_by]
+      : "#72D13D";
 
   return (
     <div className="practice-workspace practice-workspace-bg flex h-full min-h-0 flex-1 flex-col">
@@ -358,6 +432,58 @@ export default function PracticePage() {
               onRegisterStartCamera={(start) => {
                 startCameraRef.current = start;
               }}
+              afterScores={
+                isSubmitted && results ? (
+                  <div className="mt-5 space-y-3">
+                    {isFollowupLoading && (
+                      <div className="rounded-xl border border-[#DCE4D8] bg-[#F7FAF5] px-4 py-5">
+                        <p className="flex items-center gap-2 text-sm text-[#667066]">
+                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#DCE4D8] border-t-[#72D13D]" />
+                          Generating follow-up question...
+                        </p>
+                      </div>
+                    )}
+
+                    {followupError && !isFollowupLoading && (
+                      <p className="rounded-xl border border-[#B84A5A]/20 bg-[#FCE8EB] px-4 py-3 text-sm text-[#B84A5A]">
+                        {followupError}
+                      </p>
+                    )}
+
+                    {followup && !isFollowupLoading && (
+                      <div
+                        className="rounded-xl border border-[#DCE4D8] bg-white p-4"
+                        style={{ borderLeftWidth: 4, borderLeftColor: followupAccent }}
+                      >
+                        <p
+                          className="text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: followupAccent }}
+                        >
+                          Follow-up from {followup.asked_by}:
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-[#172018]">
+                          {followup.followup_question}
+                        </p>
+
+                        {followupAnswer !== null ? (
+                          <div className="mt-4 rounded-lg border border-[#DCE4D8] bg-[#F7FAF5] px-3 py-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#667066]">
+                              Your follow-up answer
+                            </p>
+                            <p className="mt-1.5 text-sm leading-relaxed text-[#172018]">
+                              {followupAnswer || "(No speech detected)"}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="mt-4 [&_section]:border-[#DCE4D8]">
+                            <AnswerInput onSubmit={handleFollowupSubmit} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : null
+              }
             />
           </div>
         </div>

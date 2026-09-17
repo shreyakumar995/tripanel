@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import ConsistencyBadge from "../ConsistencyBadge";
 import ScorePanel, { type ScoreResult } from "../ScorePanel";
 import { PANEL_PERSONAS } from "./constants";
@@ -17,6 +17,8 @@ type LivePanelProps = {
   cameraLocked?: boolean;
   /** Parent registers this so answering can force-start the camera. */
   onRegisterStartCamera?: (start: () => Promise<boolean>) => void;
+  /** Rendered below score panels after evaluation (e.g. follow-up). */
+  afterScores?: ReactNode;
 };
 
 export default function LivePanel({
@@ -29,6 +31,7 @@ export default function LivePanel({
   isSubmitting,
   cameraLocked = false,
   onRegisterStartCamera,
+  afterScores,
 }: LivePanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -122,6 +125,8 @@ export default function LivePanel({
               <div className="mt-5 [&_section]:grid-cols-1">
                 <ScorePanel results={results ?? []} />
               </div>
+
+              {afterScores}
             </>
           )}
         </div>

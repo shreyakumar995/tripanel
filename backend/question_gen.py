@@ -56,3 +56,27 @@ restatement of the job description."""
         "question": content,
         "difficulty": difficulty,
     }
+def generate_followup(persona_name: str, persona_prompt: str, question: str, answer: str) -> str:
+    system_prompt = f"""{persona_prompt}
+
+You are {persona_name}. You just evaluated the candidate's answer. Now ask ONE natural
+follow-up question that probes deeper into a specific weakness or gap in their answer —
+the way a real interviewer would push further on a point that wasn't fully addressed.
+
+Respond with ONLY the follow-up question text, nothing else."""
+
+    response = _chat_with_retry(
+        model="openai/gpt-oss-120b",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": f"Original question: {question}\n\nCandidate's answer: {answer}",
+            },
+        ],
+        temperature=0.6,
+    )
+    content = (response.choices[0].message.content or "").strip()
+    if not content:
+        raise RuntimeError("Groq returned an empty follow-up. Please try again.")
+    return content

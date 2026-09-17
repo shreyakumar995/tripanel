@@ -7,6 +7,7 @@ from personas import PERSONAS
 from question_gen import generate_question
 from models import db,Session,PersonaResult
 from datetime import date,timedelta
+from question_gen import generate_followup
 import os
 
 load_dotenv()
@@ -120,6 +121,46 @@ def get_streak():
         else:
             break
     return jsonify({"current_streak": streak,"total_sessions":len(sessions)})
+@app.route("/followup", methods=["POST"])
+def followup():
+    data = request.json or {}
+    question = data.get("question")
+    answer = data.get("answer")
+    results = data.get("results")  # the persona results from /evaluate
+
+    if not results:
+        return jsonify({"error": "results are required"}), 400
+
+    scored = {
+        key: value
+        for key, value in results.items()
+        if not value.get("failed") and isinstance(value.get("score"), (int, float))
+    }
+    if not scored:
+        return jsonify({"error": "no scored persona results available"}), 400
+
+    lowest_persona_key = min(scored, key=lambda k: scored[k]["score"])
+    if lowest_persona_key not in PERSONAS:
+        return jsonify({"error": f"unknown persona key: {lowest_persona_key}"}), 400
+
+    lowest_persona = scored[lowest_persona_key]
+    persona_prompt = PERSONAS[lowest_persona_key]["system_prompt"]
+
+    try:
+        followup_question = generate_followup(
+            lowest_persona.get("persona") or PERSONAS[lowest_persona_key]["name"],
+            persona_prompt,
+            question or "",
+            answer or "",
+        )
+    except Exception as exc:
+        message, status = groq_error_message(exc)
+        return jsonify({"error": message}), status
+
+    return jsonify({
+        "followup_question": followup_question,
+        "asked_by": lowest_persona.get("persona") or PERSONAS[lowest_persona_key]["name"],
+    })
 
 
 
