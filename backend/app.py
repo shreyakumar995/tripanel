@@ -6,6 +6,7 @@ from groq_client import call_persona, groq_error_message
 from personas import PERSONAS
 from question_gen import generate_question
 from models import db,Session,PersonaResult
+from datetime import date,timedelta
 import os
 
 load_dotenv()
@@ -60,7 +61,7 @@ def evaluate():
                 score=result["score"],
                 reasoning=result["reasoning"])
             db.session.add(pr)
-            db.session.commit()
+    db.session.commit()
         
 
     return jsonify(results)
@@ -101,6 +102,24 @@ def get_progress():
             entry[r.persona_name] = r.score
         timeline.append(entry)
     return jsonify(timeline)
+@app.route("/streak", methods=["GET"])
+def get_streak():
+    sessions = Session.query.order_by(Session.created_at.desc()).all()
+    if not sessions:
+         return jsonify({"current_streak": 0, "total_sessions": 0})
+    practice_days = sorted(set(s.created_at.date() for s in sessions), reverse=True)
+
+    streak=0
+    expected_day=date.today()
+    for day in practice_days:
+        if day==expected_day:
+            streak+=1
+            expected_day-=timedelta(days=1)
+        elif day == expected_day + timedelta(days=1):
+            continue
+        else:
+            break
+    return jsonify({"current_streak": streak,"total_sessions":len(sessions)})
 
 
 
