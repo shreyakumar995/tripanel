@@ -80,3 +80,25 @@ Respond with ONLY the follow-up question text, nothing else."""
     if not content:
         raise RuntimeError("Groq returned an empty follow-up. Please try again.")
     return content
+
+def generate_ideal_answer(question: str) -> str:
+    response = _chat_with_retry(
+        model="openai/gpt-oss-120b",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an expert interview coach. Given an interview question, "
+                    "write a strong, concise model answer (3-5 sentences) that a "
+                    "well-prepared candidate might give. Respond with ONLY the answer "
+                    "text, no preamble."
+                ),
+            },
+            {"role": "user", "content": question},
+        ],
+        temperature=0.5,
+    )
+    content = (response.choices[0].message.content or "").strip()
+    if not content:
+        raise RuntimeError("Groq returned an empty ideal answer. Please try again.")
+    return content

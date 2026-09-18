@@ -8,6 +8,7 @@ from question_gen import generate_question
 from models import db,Session,PersonaResult
 from datetime import date,timedelta
 from question_gen import generate_followup
+from question_gen import generate_ideal_answer
 import os
 
 load_dotenv()
@@ -19,6 +20,13 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+    # SQLite create_all() does not add new columns to existing tables.
+    columns = {
+        row[1] for row in db.session.execute(db.text("PRAGMA table_info(session)")).fetchall()
+    }
+    if "round_id" not in columns:
+        db.session.execute(db.text("ALTER TABLE session ADD COLUMN round_id VARCHAR(50)"))
+        db.session.commit()
 
 
 @app.route('/health', methods=['GET'])
@@ -162,7 +170,20 @@ def followup():
         "followup_question": followup_question,
         "asked_by": lowest_persona.get("persona") or PERSONAS[lowest_persona_key]["name"],
     })
+@app.route("/ideal-answer", methods=["POST"])
+def ideal_answer():
+    data = request.json or {}
+    question = data.get("question")
+    if not question:
+        return jsonify({"error": "question is required"}), 400
 
+    try:
+        answer = generate_ideal_answer(question)
+    except Exception as exc:
+        message, status = groq_error_message(exc)
+        return jsonify({"error": message}), status
+
+    return jsonify({"ideal_answer": answer})
 
 
 if __name__ == '__main__':
