@@ -31,6 +31,7 @@ def evaluate():
     track=data.get("track","sde_technical")
     question=data.get("question")
     answer=data.get("answer")
+    round_id = data.get("round_id")
 
     if not question or not answer:
         return jsonify({"error": "question and answer are required"}), 400
@@ -50,7 +51,7 @@ def evaluate():
     with ThreadPoolExecutor(max_workers=3) as executor:
         results = dict(executor.map(run_persona, PERSONAS.items()))
 
-    session=Session(track=track,question=question,answer=answer)
+    session=Session(track=track,question=question,answer=answer,round_id=round_id)
     db.session.add(session)
     db.session.flush()
 

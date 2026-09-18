@@ -7,6 +7,7 @@ class Session(db.Model):
     track=db.Column(db.String(50),nullable=False)
     question=db.Column(db.Text,nullable=False)
     answer=db.Column(db.Text,nullable=False)
+    round_id = db.Column(db.String(50), nullable=True)
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
 
     results=db.relationship('PersonaResult',backref='session',cascade="all,delete-orphan")

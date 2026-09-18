@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { getSettings, type TrackOption } from "../lib/settings";
 
-const TRACKS = ["SDE Technical", "GenAI", "HR Behavioral"] as const;
+export const TRACKS = ["SDE Technical", "GenAI", "HR Behavioral"] as const;
 
-type Track = (typeof TRACKS)[number];
+export type Track = (typeof TRACKS)[number];
 
-const TRACK_KEYS: Record<Track, string> = {
+export const TRACK_KEYS: Record<Track, string> = {
   "SDE Technical": "sde_technical",
   GenAI: "genai",
   "HR Behavioral": "hr_behavioral",
