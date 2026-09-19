@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0d0e;
-  --secondary: #111417;
-  --surface: #171b20;
-  --surface-elevated: #1e2329;
-  --text-primary: #e8e6e1;
-  --text-muted: #92969b;
-  --accent: #c7f43a;
-  --accent-dim: #a8e635;
-  --accent-bright: #dfff45;
+  --background: #f8faf5;
+  --secondary: #f1f7ed;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --text-primary: #172018;
+  --text-muted: #667066;
+  --accent: #72d13d;
+  --accent-dim: #48b536;
+  --accent-bright: #72d13d;
   --oxblood: #8f2638;
   --oxblood-muted: #b84a5a;
   --ivory: #e8e6e1;
   --silver: #92969b;
-  --persona-technical: #c7f43a;
-  --persona-hr: #e8e6e1;
-  --persona-systemdesign: #92969b;
-  --status-green: #c7f43a;
+  --persona-technical: #72d13d;
+  --persona-hr: #172018;
+  --persona-systemdesign: #667066;
+  --status-green: #48b536;
   --status-yellow: #c4b89a;
   --status-red: #b84a5a;
-  --border-subtle: #2a3038;
+  --border-subtle: #dce4d8;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -56,8 +56,8 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--text-primary);
+  background: #f8faf5;
+  color: #172018;
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.6;

@@ -1,7 +1,6 @@
 /* TriPanel light design system — landing + practice studio */
 
-.landing-page,
-.app-shell {
+:root {
   --lp-bg: #f8faf5;
   --lp-bg-secondary: #f1f7ed;
   --lp-green-soft: #e1f3d6;
@@ -17,7 +16,9 @@
   --lp-shadow-lg: 0 24px 64px rgba(23, 32, 24, 0.1);
   --lp-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --font-display: var(--font-plus-jakarta), system-ui, sans-serif;
+}
 
+.landing-page {
   background: var(--lp-bg);
   color: var(--lp-text);
 }
@@ -138,8 +139,8 @@
   align-items: center;
   gap: 0.5rem;
   border-radius: 10px;
-  background: var(--lp-green);
-  color: var(--lp-white);
+  background: #72d13d;
+  color: #12141c;
   font-size: 0.9375rem;
   font-weight: 600;
   padding: 0.875rem 1.375rem;
@@ -151,7 +152,7 @@
 }
 
 .landing-btn-primary:hover {
-  background: var(--lp-green-dark);
+  background: #48b536;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(72, 181, 54, 0.22);
 }
@@ -161,9 +162,9 @@
   align-items: center;
   gap: 0.5rem;
   border-radius: 10px;
-  border: 1px solid var(--lp-border);
-  background: var(--lp-white);
-  color: var(--lp-text);
+  border: 1px solid #dce4d8;
+  background: #ffffff;
+  color: #172018;
   font-size: 0.9375rem;
   font-weight: 500;
   padding: 0.875rem 1.375rem;
@@ -395,12 +396,12 @@
 
 .landing-nav-link {
   position: relative;
-  color: var(--lp-text-secondary);
+  color: #667066;
   transition: color 0.2s ease;
 }
 
 .landing-nav-link:hover {
-  color: var(--lp-text);
+  color: #172018;
 }
 
 .landing-nav-link::after {
@@ -410,7 +411,7 @@
   bottom: -4px;
   width: 100%;
   height: 2px;
-  background: var(--lp-green);
+  background: #72d13d;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s var(--lp-ease);
