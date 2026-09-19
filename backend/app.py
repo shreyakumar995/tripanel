@@ -9,6 +9,8 @@ from models import db,Session,PersonaResult
 from datetime import date,timedelta
 from question_gen import generate_followup
 from question_gen import generate_ideal_answer
+from pypdf import PdfReader
+import io
 import os
 
 load_dotenv()
@@ -184,6 +186,26 @@ def ideal_answer():
         return jsonify({"error": message}), status
 
     return jsonify({"ideal_answer": answer})
+def extract_resume_text(file_bytes: bytes) -> str:
+    reader = PdfReader(io.BytesIO(file_bytes))
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() or ""
+    return text.strip()
+@app.route("/tailor", methods=["POST"])
+def tailor():
+    if "resume" not in request.files:
+        return jsonify({"error": "resume file is required"}), 400
+
+    resume_file = request.files["resume"]
+    jd_text = request.form.get("jd_text", "")
+    track = request.form.get("track", "sde_technical")
+
+    resume_bytes = resume_file.read()
+    resume_text = extract_resume_text(resume_bytes)[:3000]  # cap length, same safeguard idea as JD text
+
+    result = generate_question(track, jd_text, resume_text)
+    return jsonify(result)
 
 
 if __name__ == '__main__':

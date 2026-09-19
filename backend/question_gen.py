@@ -24,27 +24,37 @@ def get_difficulty_level(track:str)->str:
         return"intermediate"
     else:
         return"advanced"
-def generate_question(track:str,jd_text:str=None)->dict:
+def generate_question(track: str, jd_text: str = None, resume_text: str = None) -> dict:
 
-    difficulty=get_difficulty_level(track)
-    prompt=get_prompt(track,difficulty)
+    difficulty = get_difficulty_level(track)
+    prompt = get_prompt(track, difficulty)
+
+    context_parts = []
     if jd_text and jd_text.strip():
-         prompt = f"""{prompt}
-Additionally, tailor this question to be relevant to the following job
-description, focusing on skills or requirements it specifically mentions:
+        context_parts.append(f"JOB DESCRIPTION:\n{jd_text.strip()[:2000]}")
+    if resume_text and resume_text.strip():
+        context_parts.append(f"CANDIDATE'S RESUME:\n{resume_text.strip()[:3000]}")
+
+    if context_parts:
+        combined_context = "\n\n".join(context_parts)
+        prompt = f"""{prompt}
+
+Additionally, use the following context to tailor this question:
 
 ---
-{jd_text.strip()[:2000]}
+{combined_context}
 ---
 
+If both a job description and resume are provided, focus the question on
+a specific gap between what the JD requires and what the resume shows -
+the way a real interviewer would probe an unproven or missing skill.
 The question should still be a single interview question, not a
-restatement of the job description."""
-    else:
-        prompt = prompt 
+restatement of either document."""
+
     response = _chat_with_retry(
         model="openai/gpt-oss-120b",
         messages=[
-            {"role":"system","content":"You are an interview question generator. respond with only the question text, nothing else - no numbering, no extra commentary."},
+            {"role": "system", "content": "You are an interview question generator. respond with only the question text, nothing else - no numbering, no extra commentary."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.8,

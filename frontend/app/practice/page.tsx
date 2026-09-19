@@ -105,6 +105,39 @@ export default function PracticePage() {
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const preloaded = params.get("question")?.trim();
+    const trackParam = params.get("track");
+
+    if (trackParam) {
+      setTrack(trackFromKey(trackParam));
+    }
+
+    if (!preloaded) return;
+
+    setQuestion(preloaded);
+    setDifficulty("");
+    setAnswer("");
+    setIsSubmitted(false);
+    setResults(null);
+    setSubmitError("");
+    setFollowup(null);
+    setFollowupError("");
+    setFollowupAnswer(null);
+    setSelectedSessionId(null);
+    setSetupCollapsed(true);
+    setElapsedSeconds(0);
+    setTimerActive(true);
+    setStage("question_ready");
+
+    if (getSettings().autoSpeakQuestions) {
+      speakQuestion(preloaded);
+    }
+
+    window.history.replaceState({}, "", "/practice");
+  }, []);
+
+  useEffect(() => {
     if (!timerActive) return;
     const id = window.setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
     return () => window.clearInterval(id);
